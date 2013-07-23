@@ -1,7 +1,7 @@
 xd-demo with Pivotal HD Retail data
 ===================================
 
-<strong>Demo User Story</strong>
+<strong>Demo User Story</strong></br>
 We want to ingest real time orders from our POS system directly to HDFS via a pipe delimited HTTP post. 
 A sample post looks like:
 
@@ -82,10 +82,8 @@ sqlfire hostname.</li>
 You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modify '/data/1/hawq_master/gpseg-1/pg_hba.conf' in your Pivotal HD VM to remote connect.
 </li>
 <li>[PIVOTAL_TERMINAL] Restart Pivotal HD via the stop/start scripts.
-   <pre>
-      /home/gpadmin/stop_all.sh;
-      /home/gpadmin/start_all.sh;
-   </pre>
+  <pre>/home/gpadmin/stop_all.sh;
+      /home/gpadmin/start_all.sh;</pre>
 </li>
 </ol>
 
