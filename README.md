@@ -50,7 +50,7 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 Refer to xd_streams.txt file for details on the syntax. You may need to change to "tap @ order_stream" reflect the proper
 sqlfire hostname.</li>
 
-<li>[Pivotal HD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
+<li>[PIVOTALHD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
    <br/><code>python demo.py setup_hdfs</code>
 </li>
 
@@ -66,7 +66,7 @@ sqlfire hostname.</li>
 <br/><code>python demo.py query</code>
 </li>
 
-<li>[PIVOTALHD_TERMINAL] Create PXF and HAWQ Tables
+<li>[PIVOTALHD TERMINAL] Create PXF and HAWQ Tables
    <br/><code>python demo.py setup_hawq</code>
 </li>
 
@@ -74,17 +74,19 @@ sqlfire hostname.</li>
    <br/><code>python demo.py query_hawq</code>
 </li>
 
-<li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
-   <br/><code>python demo.py teardown_hawq</code>
-</li>
-
 <li>Install DB Visualizer and run queries through a JDBC client GUI. http://www.dbvis.com/.
 You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modify '/data/1/hawq_master/gpseg-1/pg_hba.conf' in your Pivotal HD VM to remote connect.
 </li>
-<li>[PIVOTAL_TERMINAL] Restart Pivotal HD via the stop/start scripts.
+<li>[PIVOTALHD TERMINAL] Restart Pivotal HD via the stop/start scripts.
 <pre>
 /home/gpadmin/stop_all.sh;
 /home/gpadmin/start_all.sh;</pre>
+</li>
+<li>[PIVOTALHD TERMINAL] Teardown HAWQ tables
+   <br/><code>python demo.py teardown_hawq</code>
+</li>
+<li>[SQLFIRE TERMINAL] Teardown SQLFire tables
+   <br/><code>python demo.py teardown</code>
 </li>
 </ol>
 
