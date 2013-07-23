@@ -37,54 +37,55 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <li>Open config.py and add entries for each property. This is very important to ensure connectivity to Pivotal HD and SQLFire.</li>
 
 <li>In a terminal window run(will scp python demo scripts to pivotal hd and sqlfire VMs. Will copy spring xd scripts, lib jars, modules and sink config:
-   <code>python install.py</code>
+   <br/><code>python install.py</code>
 </li> 
 <li>Run Spring XD DIRT/Admin in a terminal window
-   <code>$SPRING_XD/xd/bin/xd-singlenode</code>
+   <br/><code>$SPRING_XD/xd/bin/xd-singlenode</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 
  
-<code>$SPRING_XD/shell/bin/spring-xd-shell</code>
+<br/><code>$SPRING_XD/shell/bin/spring-xd-shell</code>
 </li>
 <li>In Spring XD Shell - Create Hadoop Stream and tap stream
 Refer to xd_streams.txt file for details on the syntax. You may need to change to "tap @ order_stream" reflect the proper
 sqlfire hostname.</li>
 
 <li>[Pivotal HD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
-   <code>python demo.py setup_hdfs</code>
+   <br/><code>python demo.py setup_hdfs</code>
 </li>
 
 <li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
-   <code>python demo.py setup</code>
+   <br/><code>python demo.py setup</code>
 </li>
 
 <li>In a terminal window, run send_data.py to start a data stream simulation.
-   <code>python send_data.py</code>
+   <br/><code>python send_data.py</code>
 </li>
 
 <li>[SQLFIRE TERMINAL] Verify that SQLFire is getting only order amounts > 5000
-<code>python demo.py query</code>
+<br/><code>python demo.py query</code>
 </li>
 
 <li>[PIVOTALHD_TERMINAL] Create PXF and HAWQ Tables
-   <code>python demo.py setup_hawq</code>
+   <br/><code>python demo.py setup_hawq</code>
 </li>
 
 <li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
-   <code>python demo.py query_hawq</code>
+   <br/><code>python demo.py query_hawq</code>
 </li>
 
 <li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
-   <code>python demo.py teardown_hawq</code>
+   <br/><code>python demo.py teardown_hawq</code>
 </li>
 
 <li>Install DB Visualizer and run queries through a JDBC client GUI. http://www.dbvis.com/.
 You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modify '/data/1/hawq_master/gpseg-1/pg_hba.conf' in your Pivotal HD VM to remote connect.
 </li>
 <li>[PIVOTAL_TERMINAL] Restart Pivotal HD via the stop/start scripts.
-   <code>/home/gpadmin/stop_all.sh;
+   <pre>
+      /home/gpadmin/stop_all.sh;
       /home/gpadmin/start_all.sh;
-   </code>
+   </pre>
 </li>
 </ol>
 
