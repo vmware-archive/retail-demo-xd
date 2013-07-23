@@ -1,7 +1,7 @@
 xd-demo with Pivotal HD Retail data
 ===================================
 
-<strong>Demo User Story</strong></br>
+<strong>Demo User Story</strong><br/>
 We want to ingest real time orders from our POS system directly to HDFS via a pipe delimited HTTP post. 
 A sample post looks like:
 
