@@ -1,0 +1,20 @@
+stream create 
+--definition "http --port=8000 | 
+filter --script=order-filter.groovy | 
+transform --script=order-transformer.groovy | 
+hdfs --rollover=51200 --suffix=txt" 
+--name order_stream
+
+stream create 
+--definition "tap @ order_stream | 
+filter --script=order-filter2.groovy | 
+sqlf --delimiter=',' --url='sqlfire'
+--insert='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID) 
+          values (:payload[0],:payload[1],:payload[2],:payload[3])'" 
+--name order_tap
+
+COPY/PASTE
+stream create --definition "http --port=8000 | filter --script=order-filter.groovy | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
+
+stream create --definition "tap @ order_stream | filter --script=order-filter2.groovy | sqlf --delimiter=',' --url='sqlfire' --insert='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID) values (:payload[0],:payload[1],:payload[2],:payload[3])'" --name order_tap
+

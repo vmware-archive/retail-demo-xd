@@ -1,7 +1,7 @@
 xd-demo with Pivotal HD Retail data
 ===================================
 
-Demo User Story
+<strong>Demo User Story</strong>
 We want to ingest real time orders from our POS system directly to HDFS via a pipe delimited HTTP post. 
 A sample post looks like:
 
@@ -14,56 +14,73 @@ We are going to re-use some integration work that was done in the past and we ne
 ingesting into hadoop. First, the order delimiter is a "comma", we need the delimiter to be a Pipe. 
 Second, some orders have bad data. We need to filter these records before persisting them to HDFS. After landing the data into hadoop, 
 we would like to run SQL analytics on the orders to see if they match known fraudulent orders from the past. Hive is not an option 
-because it does not provide fast enough response time and full ANSI compliance.
-
-BONUS: Some of these orders have very high amounts($5000+ is our wire-tap flag) that we want forward to an in-memory database that one of our
+because it does not provide fast enough response time and full ANSI compliance. Some of these orders have very high amounts($5000+ is our wire-tap flag) that we want forward to an in-memory database that one of our
 real-time fraud detection applications uses to catch criminals before they leave the store. The in-memory database will need to
 support several hundred thousand transactions per second. 
 
-In order to get this running with Pivotal HD
-1) Start Pivotal HD instance. It is optional to run the "pivotal-samples" data labs to populate the retail_demo
-DB with HAWQ tables/data. The "pivotal-samples" github project is located at: https://github.com/PivotalHD/pivotal-samples
+<strong>In order to get this running with Pivotal HD</strong>
+<ol>
+<li>Start Pivotal HD instance. It is optional to run the "pivotal-samples" data labs to populate the retail_demo
+DB with HAWQ tables/data. The "pivotal-samples" github project is located at: https://github.com/PivotalHD/pivotal-samples</li>
 
-2) Install Spring XD from source. The Github project is located at: https://github.com/SpringSource/spring-xd
+<li>Install Spring XD from source. The Github project is located at: https://github.com/SpringSource/spring-xd</li>
 
-3) Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect webhdfs:
-	fs.default.name=webhdfs://192.168.72.172:50070
+<li>Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect webhdfs:
+	fs.default.name=webhdfs://192.168.72.172:50070</li>
 
-4) Copy order-filter.groovy, order-transformer.groovy and order-filter2.groovy to $SPRING_XD/xd/modules/processor/scripts directory
+<li>Open config.py and add entries for each property. This is very important to ensure connectivity to Pivotal HD and SQLFire.</li>
 
-5) Copy xd_vm/lib jars to $SPRING_XD/xd/lib. There are 4 jars that are needed for the SQLFire tap to work.
+<li>In a terminal window run(will scp python demo scripts to pivotal hd and sqlfire VMs. Will copy spring xd scripts, lib jars, modules and sink config:
 
-6) Copy xd_vm/sink/sqlf.xml to $SPRING_XD/xd/modules/sink. The sqlf.xml config file will use a class in xd-demo-0.0.1-SNAPSHOT.jar. 
-	
-7) Run Spring XD DIRT/Admin in a terminal window
-$SPRING_XD/xd/bin/xd-singlenode 
+<code>python install.py</code>
+</li> 
+<li>Run Spring XD DIRT/Admin in a terminal window
 
-8) Run Spring XD Shell in a terminal window 
-$SPRING_XD/shell/bin/spring-xd-shell 
+<code>$SPRING_XD/xd/bin/xd-singlenode</code>
+</li>
+<li>Run Spring XD Shell in a terminal window 
+ 
+<code>$SPRING_XD/shell/bin/spring-xd-shell</code>
+</li>
+<li>In Spring XD Shell - Create Hadoop Stream and tap stream
+Refer to xd_streams.txt file for details on the syntax. You may need to change to "tap @ order_stream" reflect the proper
+sqlfire hostname.</li>
 
-9) In Spring XD Shell - Create Hadoop Stream and tap stream
-Refer to xd_streams.txt file for details on the syntax.
+<li>[Pivotal HD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
+<code>python demo.py setup_hdfs</code>
+</li>
 
-10) Copy phd_vm scripts to your Pivotal HD VM. You will use demo.py to create tables, run queries and hdfs directories. 
-Before sending data to spring xd. HDFS folder must be created to avoid errors.
-python demo.py setup_hdfs    
+<li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
+<code>python demo.py setup</code>
+</li>
 
-11) Copy sqlf_vm scripts to your SQLFire VM. [SQLFIRE VM] You will use demo.py to create tables and run queries. 
-Before sending data to spring xd. SQLFire tables must be created to avoid errors.
-Run "python demo.py setup" 
+<li>In a terminal window, run send_data.py to start a data stream simulation.
+<code>python send_data.py</code>
+</li>
 
-12) Run send_data.py
-python send_data.py
+<li>[SQLFIRE TERMINAL] Verify that SQLFire is getting only order amounts > 5000
+<code>python demo.py query</code>
+</li>
 
-13) [SQLFIRE VM] Verify that SQLFire is getting only order amounts > 5000
-python demo.py query
+<li>[PIVOTALHD_TERMINAL] Create PXF and HAWQ Tables
+<code>python demo.py setup_hawq</code>
+</li>
 
-14) [PIVOTALHD_VM] Create PXF and HAWQ Tables
-python demo.py setup_hawq
+<li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
+<code>python demo.py query_hawq</code>
+</li>
 
-15) [PIVOTALHD_VM] Run a PXF and HAWQ Query
-python demo.py query_hawq
+<li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
+<code>python demo.py teardown_hawq</code>
+</li>
 
-16) [PIVOTALHD_VM] Run a PXF and HAWQ Query
-python demo.py teardown_hawq
+<li>Install DB Visualizer and run queries through a JDBC client GUI. http://www.dbvis.com/.
+You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modify '/data/1/hawq_master/gpseg-1/pg_hba.conf' in your Pivotal HD VM to remote connect.
+</li>
+<li>[PIVOTAL_TERMINAL] Restart Pivotal HD via the stop/start scripts.
+<code>/home/gpadmin/stop_all.sh;
+      /home/gpadmin/start_all.sh;
+</code>
+</li>
+</ol>
 
