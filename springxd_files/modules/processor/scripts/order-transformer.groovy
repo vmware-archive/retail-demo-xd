@@ -1,6 +1,10 @@
 /**
- * Simple implementation of a Spring Integration transformer
- that leaves the payload unmodified
+ * Takes a JSON payload and converts it into
+ * a pipe delimited String.
  *
  */
-return payload.replaceAll(",", "|")
+import groovy.json.JsonSlurper
+ 
+def jsonOrder = new JsonSlurper().parseText( payload )
+def pipeString = jsonOrder.customerid + "|" + jsonOrder.orderid + "|" + jsonOrder.orderamount + "|" + jsonOrder.storeid
+return pipeString

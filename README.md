@@ -12,8 +12,8 @@ curl -d "BAD_DATA,3339,8216.32,3240" http://localhost:8000 - Bad Post
 </pre>
 
 We are going to re-use some integration work that was done in the past and we need to transform and filter the POS data before 
-ingesting into hadoop. First, the order delimiter is a "comma", we need the delimiter to be a Pipe. 
-Second, some orders have bad data. We need to filter these records before persisting them to HDFS. After landing the data into hadoop, 
+ingesting into hadoop. The HTTP stream will accept JSON formatted key/value pairs for. 
+Some orders have bad data. We need to filter these records before persisting them to HDFS. After landing the data into hadoop, 
 we would like to run SQL analytics on the orders to see if they match known fraudulent orders from the past. Hive is not an option 
 because it does not provide fast enough response time and full ANSI compliance. Some of these orders have very high amounts($5000+ is our wire-tap flag) that we want forward to an in-memory database that one of our
 real-time fraud detection applications uses to catch criminals before they leave the store. The in-memory database will need to
