@@ -6,8 +6,8 @@ We want to ingest real time orders from our POS system directly to HDFS via a pi
 A sample post looks like:
 
 <pre>Customer ID, Order ID, Order Amount, Store ID
-curl -d "{\"orderid\Ó:\Ó123\Ó,\"storeid\Ó:\Ó456\Ó,\"customerid\Ó:\Ó789\",\"orderamount\":\Ó5000.01\Ó}" http://localhost:8000 - Good Post
-curl -d "{\"orderid\Ó:\ÓBAD_DATA\Ó,\"storeid\Ó:\Ó456\Ó,\"customerid\Ó:\Ó789\",\"orderamount\":\Ó5000.01\Ó}" http://localhost:8000 - Bad Post
+curl -d "{\"orderid\":\"123\",\"storeid\":\"456\",\"customerid\":\"789\",\"orderamount\":\"5000.01\"}" http://localhost:8000 - Good Post
+curl -d "{\"orderid\":\"BAD_DATA\",\"storeid\":\"456\",\"customerid\":\"789\",\"orderamount\":\"5000.01\"}" http://localhost:8000 - Bad Post
 123|456|789|5000.01 - Dream State in HDFS with HAWQ and in-memory Query
 </pre>
 
