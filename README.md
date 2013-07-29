@@ -51,7 +51,7 @@ Refer to xd_streams.txt file for details on the syntax. You may need to change t
 sqlfire hostname.</li>
 
 <li>[PIVOTALHD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
-   <br/><code>python demo.py setup_hdfs</code>
+   <br/><code>./demo.py setup_hdfs</code>
 </li>
 
 <li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
@@ -83,10 +83,10 @@ You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modi
 /home/gpadmin/start_all.sh;</pre>
 </li>
 <li>[PIVOTALHD TERMINAL] Teardown HAWQ tables
-   <br/><code>python demo.py teardown_hawq</code>
+   <br/><code>./demo.py teardown_hawq</code>
 </li>
 <li>[SQLFIRE TERMINAL] Teardown SQLFire tables
-   <br/><code>python demo.py teardown</code>
+   <br/><code>./demo.py teardown</code>
 </li>
 </ol>
 
