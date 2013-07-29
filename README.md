@@ -6,13 +6,13 @@ We want to ingest real time orders from our POS system directly to HDFS via a pi
 A sample post looks like:
 
 <pre>Customer ID, Order ID, Order Amount, Store ID
-curl -d "3096,3339,8216.32,3240" http://localhost:8000 - Good Post
-curl -d "BAD_DATA,3339,8216.32,3240" http://localhost:8000 - Bad Post
-3096|3339|8216|32,324 - Dream State in HDFS with HAWQ and in-memory Query
+curl -d "{\"orderid\Ó:\Ó123\Ó,\"storeid\Ó:\Ó456\Ó,\"customerid\Ó:\Ó789\",\"orderamount\":\Ó5000.01\Ó}" http://localhost:8000 - Good Post
+curl -d "{\"orderid\Ó:\ÓBAD_DATA\Ó,\"storeid\Ó:\Ó456\Ó,\"customerid\Ó:\Ó789\",\"orderamount\":\Ó5000.01\Ó}" http://localhost:8000 - Bad Post
+123|456|789|5000.01 - Dream State in HDFS with HAWQ and in-memory Query
 </pre>
 
 We are going to re-use some integration work that was done in the past and we need to transform and filter the POS data before 
-ingesting into hadoop. The HTTP stream will accept JSON formatted key/value pairs for. 
+ingesting into hadoop. The HTTP stream will accept JSON formatted key/value pairs of Order data. 
 Some orders have bad data. We need to filter these records before persisting them to HDFS. After landing the data into hadoop, 
 we would like to run SQL analytics on the orders to see if they match known fraudulent orders from the past. Hive is not an option 
 because it does not provide fast enough response time and full ANSI compliance. Some of these orders have very high amounts($5000+ is our wire-tap flag) that we want forward to an in-memory database that one of our
@@ -37,7 +37,7 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <li>Open config.py and add entries for each property. This is very important to ensure connectivity to Pivotal HD and SQLFire.</li>
 
 <li>In a terminal window run(will scp python demo scripts to pivotal hd and sqlfire VMs. Will copy spring xd scripts, lib jars, modules and sink config:
-   <br/><code>python install.py</code>
+   <br/><code>./install.py</code>
 </li> 
 <li>Run Spring XD DIRT/Admin in a terminal window
    <br/><code>$SPRING_XD/xd/bin/xd-singlenode</code>
@@ -55,23 +55,23 @@ sqlfire hostname.</li>
 </li>
 
 <li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
-   <br/><code>python demo.py setup</code>
+   <br/><code>./demo.py setup</code>
 </li>
 
 <li>In a terminal window, run send_data.py to start a data stream simulation.
-   <br/><code>python send_data.py</code>
+   <br/><code>./send_data.py</code>
 </li>
 
 <li>[SQLFIRE TERMINAL] Verify that SQLFire is getting only order amounts > 5000
-<br/><code>python demo.py query</code>
+<br/><code>./demo.py query</code>
 </li>
 
 <li>[PIVOTALHD TERMINAL] Create PXF and HAWQ Tables
-   <br/><code>python demo.py setup_hawq</code>
+   <br/><code>./demo.py setup_hawq</code>
 </li>
 
 <li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
-   <br/><code>python demo.py query_hawq</code>
+   <br/><code>./demo.py query_hawq</code>
 </li>
 
 <li>Install DB Visualizer and run queries through a JDBC client GUI. http://www.dbvis.com/.
