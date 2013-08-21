@@ -44,13 +44,17 @@ hawq_teardown_sql = """
 --Cleanup SQL
 DROP TABLE realtime_orders_hawq; 
 DROP EXTERNAL TABLE realtime_orders_pxf;
+DROP EXTERNAL TABLE orders_training_pxf CASCADE;
+DROP TABLE model;
 """
 
 def setup_hdfs():
   shellcmd('hdfs dfs -rm -r /xd')
   shellcmd('hdfs dfs -mkdir /xd')
   shellcmd('hdfs dfs -mkdir /xd/order_stream')
-  shellcmd('hdfs dfs -chown williamsj:gpadmin /xd/order_stream')
+  shellcmd('hdfs dfs -chown azwickey:gpadmin /xd/order_stream')
+  shellcmd('hdfs dfs -mkdir /xd/training_stream')
+  shellcmd('hdfs dfs -chown azwickey:gpadmin /xd/training_stream')
   shellcmd('hdfs dfs -ls -R /xd')
   print "hadoop setup"
    
