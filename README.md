@@ -54,6 +54,14 @@ sqlfire hostname.</li>
    <br/><code>./demo.py setup_hdfs</code>
 </li>
 
+<li>In a terminal window, run build_training_data.py to start a data stream that will populate a baseline set of data to build a statistical model.  This will populate 100K records so it will take a bit of time
+   <br/><code>./build_training_data.py </code>
+</li>
+
+<li>[PIVOTALHD TERMINAL]  Open an ssh session to your Pivotal VM and run this script.  This will take a bit of time.
+   <br/><code>./demo.py train_analytic</code>
+</li>
+
 <li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
    <br/><code>./demo.py setup</code>
 </li>
