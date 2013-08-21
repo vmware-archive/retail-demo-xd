@@ -23,6 +23,7 @@
 				<entry key="ORDER_ID" value="payload.get('orderid').asInt()" />
 				<entry key="ORDER_AMOUNT" value="payload.get('orderamount').asDouble()" />
 				<entry key="STORE_ID" value="payload.get('storeid').asInt()"/>
+				<entry key="ITEMS" value="payload.get('items').asInt()"/>
 			</map>
 		</property>
 	</bean>
