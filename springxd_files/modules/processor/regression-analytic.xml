@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<int:channel id="input" />
+	
+	<int:chain input-channel="input" output-channel="output">
+		<int:transformer>
+			<bean class="org.springframework.integration.x.json.StringToJsonNodeTransformer"/>
+		</int:transformer>
+		<int:filter ref="logisticRegression" method="execute" />
+	</int:chain>
+	
+	<lang:groovy id="logisticRegression" script-source="db-logistic-regression.groovy">
+    	<lang:property name="template" ref="template" />
+    	<lang:property name="threshold" value="${threshold:0.75}" />
+	</lang:groovy>
+	
+	<bean id="template" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- Datasource for HAWQ -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://${url:pivhdsne}:5432/gpadmin" />
+		<property name="username" value="${username:gpadmin}" />
+		<property name="password" value="${password:password}" />
+	</bean>
+	
+	<int:channel id="output"/>
+	
+</beans>
