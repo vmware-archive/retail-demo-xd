@@ -5,11 +5,31 @@ import commands
 
 hawq_setup_sql = """
 --Create external table for the HDFS realtime order data stream
-CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer) 
+CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) 
 LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&Accessor=TextFileAccessor&Resolver=TextResolver') 
 FORMAT 'TEXT' (DELIMITER = '|'); 
 
 CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf;
+"""
+
+hawq_training_setup_sql = """
+--Create external table for the HDFS training order data stream
+CREATE EXTERNAL TABLE orders_training_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer, is_fraudulent integer) 
+LOCATION ('pxf://pivhdsne:50070/xd/training_stream/training_stream-*.txt?Fragmenter=HdfsDataFragmenter&Accessor=TextFileAccessor&Resolver=TextResolver') 
+FORMAT 'TEXT' (DELIMITER = '|'); 
+
+DROP VIEW IF EXISTS regression_model CASCADE;
+CREATE VIEW regression_model AS
+SELECT
+order_id,
+CASE WHEN is_fraudulent=1 THEN TRUE ELSE FALSE END AS dep_var,
+ARRAY[order_amount,store_id,num_items]::float8[] as features,
+is_fraudulent
+FROM orders_training_pxf;
+
+create table model as select * from madlib.logregr('regression_model','dep_var','features');
+
+Select * from model;
 """
 
 hawq_queries_sql = """
@@ -40,6 +60,9 @@ def setup_hawq():
 def query_hawq():
    psql(hawq_queries_sql)
    
+def train_analytic():
+   psql(hawq_training_setup_sql)
+   
 def teardown_hawq():
    psql(hawq_teardown_sql)
     
@@ -58,11 +81,12 @@ def shellcmd(cmd):
 def main():
   args = sys.argv[1:]
   if not args:
-    print "usage (type one option): setup_hdfs | setup_hawq | query_hawq | teardown_hawq";
+    print "usage (type one option): setup_hdfs | train_analytic | setup_hawq | query_hawq | teardown_hawq";
     sys.exit(1)
 	
   functionList = {'setup_hdfs': setup_hdfs, 'setup_hawq': setup_hawq, 
-                  'query_hawq': query_hawq, 'teardown_hawq':teardown_hawq}
+                  'query_hawq': query_hawq, 'teardown_hawq':teardown_hawq, 
+                  'train_analytic':train_analytic}
                   
   functionList[args[0]]()
   
