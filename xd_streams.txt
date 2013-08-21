@@ -1,16 +1,15 @@
-stream create --definition "http --port=8000 | 
-filter --expression=!payload.contains("BAD_DATA") | 
-transform --script=order-transformer.groovy | 
-hdfs --rollover=51200 --suffix=txt" --name order_stream
+### Streams that are used to created training set
+stream create --definition "http --port=8001 | transform --script=order-transformer-training.groovy | hdfs --rollover=51200 --suffix=txt" --name training_stream
 
+### Streams for running demo
+stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
-tap create --definition "tap order_stream.filter | 
-order-amount-filter --minAmount='5000' | 
-sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID) 
-                                  values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID)' | 
-log" --name order_tap
+tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
+
+##  OLD  tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
 
 COPY/PASTE
 stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
-tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID)' | log" --name order_tap
+## OLD  tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
+tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
