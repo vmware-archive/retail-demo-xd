@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spring XD Demo</title>
+<meta http-equiv="Cache-Control"
+	content="no-store, no-cache, must-revalidate, max-age=0">
+<link href="css/retail.css" rel="stylesheet">
+<link href="css/bootstrap.css" rel="stylesheet">
+</head>
+<body>
+
+	<div class="container">
+		<div id="heading" class="masthead">
+			<h3 class="muted">Realtime Fraud Dashboard</h3>
+		</div>
+		<div id="main-content">
+			<div class="numberSum">
+				<span>Total Fraud Detected: </span> <span 
+					data-bind="text: retailOrders().runningTotal"></span>
+			</div>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Store ID</th>
+						<th class="number">Order Amount</th>
+						<th class="number">Customer ID</th>
+						<th class="number">Order ID</th>
+						<th class="number">Number of Items</th>
+					</tr>
+				</thead>
+				<tbody data-bind="foreach: retailOrders().rows">
+					<tr>
+						<td data-bind="text: storeId"></td>
+						<td data-bind="text: formattedOrderAmount"></td>
+						<td data-bind="text: customerId"></td>
+						<td data-bind="text: orderId"></td>
+						<td data-bind="text: numItems"></td>
+					</tr>
+				</tbody>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- 3rd party javascript libraries -->
+	<script src="js/jquery-1.8.3.js"></script>
+	<script src="js/bootstrap.js"></script>
+	<script src="js/knockout-2.3.0.js"></script>
+
+	<!-- application -->
+	<script src="js/retail-order.js"></script>
+	<script type="text/javascript">
+		(function() {
+
+			var model = new ApplicationModel();
+			ko.applyBindings(model);
+			model.start();
+
+			//refresh every 5 seconds
+			window.setInterval(model.refresh, 2000);
+
+		})();
+	</script>
+
+</body>
+</html>

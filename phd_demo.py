@@ -52,9 +52,9 @@ def setup_hdfs():
   shellcmd('hdfs dfs -rm -r /xd')
   shellcmd('hdfs dfs -mkdir /xd')
   shellcmd('hdfs dfs -mkdir /xd/order_stream')
-  shellcmd('hdfs dfs -chown azwickey:gpadmin /xd/order_stream')
+  shellcmd('hdfs dfs -chown williamsj:gpadmin /xd/order_stream')
   shellcmd('hdfs dfs -mkdir /xd/training_stream')
-  shellcmd('hdfs dfs -chown azwickey:gpadmin /xd/training_stream')
+  shellcmd('hdfs dfs -chown williamsj:gpadmin /xd/training_stream')
   shellcmd('hdfs dfs -ls -R /xd')
   print "hadoop setup"
    
@@ -63,6 +63,9 @@ def setup_hawq():
 
 def query_hawq():
    psql(hawq_queries_sql)
+   
+def hdfs():
+  shellcmd('hdfs dfs -ls -R /xd')
    
 def train_analytic():
    psql(hawq_training_setup_sql)
@@ -85,10 +88,10 @@ def shellcmd(cmd):
 def main():
   args = sys.argv[1:]
   if not args:
-    print "usage (type one option): setup_hdfs | train_analytic | setup_hawq | query_hawq | teardown_hawq";
+    print "usage (type one option): setup_hdfs | hdfs | train_analytic | setup_hawq | query_hawq | teardown_hawq";
     sys.exit(1)
 	
-  functionList = {'setup_hdfs': setup_hdfs, 'setup_hawq': setup_hawq, 
+  functionList = {'setup_hdfs': setup_hdfs, 'hdfs': hdfs, 'setup_hawq': setup_hawq, 
                   'query_hawq': query_hawq, 'teardown_hawq':teardown_hawq, 
                   'train_analytic':train_analytic}
                   
