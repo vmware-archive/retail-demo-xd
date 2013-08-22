@@ -24,7 +24,7 @@ def main():
     if ((float(order_amount)/int(num_items)) >= 500) and (int(store_id) % 10 == 0):
         is_fraudulent = 1;
         print "************************"
-        print "Created fraudulent order" + str(x)
+        print "Created fraudulent order - " + str(x)
         print "************************"   
        
     data = json.dumps({"customerid": cust_id, "orderid": order_id, "orderamount": order_amount, "storeid": store_id, "items": num_items, "fraudulent": is_fraudulent})
