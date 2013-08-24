@@ -12,13 +12,17 @@
 
 	<div class="container">
 		<div id="heading" class="masthead">
-			<h3 class="muted">Realtime Fraud Dashboard</h3>
+		<table class="logo">
+			<tr>
+				<td><img src="img/logo.jpg" alt="Demo Logo" /></td>
+				<td class="sumTotal" data-bind="text: retailOrders().runningTotal"></td>
+			</tr>
+		</table>
+			
+			
+			
 		</div>
 		<div id="main-content">
-			<div class="numberSum">
-				<span>Total Fraud Detected: </span> <span 
-					data-bind="text: retailOrders().runningTotal"></span>
-			</div>
 			<table class="table table-striped">
 				<thead>
 					<tr>

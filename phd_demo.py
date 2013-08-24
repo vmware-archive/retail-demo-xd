@@ -72,6 +72,7 @@ def train_analytic():
    
 def teardown_hawq():
    psql(hawq_teardown_sql)
+   shellcmd('hdfs dfs -rm -r /xd/order_stream/*')
     
 def psql(sql):
     f = open("out.sql", "w")
