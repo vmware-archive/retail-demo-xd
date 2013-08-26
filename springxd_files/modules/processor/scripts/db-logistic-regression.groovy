@@ -11,9 +11,9 @@ class LogisticRegression  {
 	public boolean execute(Object order) {
 		
 		String sql = "select madlib.logistic(madlib.array_dot(model.coef,ARRAY[" + 
-			order.get("orderamount").asDouble() +"," +
-			order.get("storeid").asInt() + "," +
-			order.get("items").asInt() + "]::double precision[])) as score from model";
+			order.get("orderAmount").asDouble() +"," +
+			order.get("storeId").asInt() + "," +
+			order.get("numItems").asInt() + "]::double precision[])) as score from model";
 		
 		float score = template.queryForObject(sql, Float)
 		if(score >= threshold) {

@@ -10,18 +10,26 @@ import urllib2
 def main():
   for x in xrange(10001):
     cust_id = str(x)
-    order_id = str(random.randrange(2000,10000))
+    order_id = random.randrange(2000,10000)
     order_amount = str('{:20.2f}'.format(random.uniform(100,10000))).strip()
-    store_id = str(random.randrange(1,1000))
+    state_id = str(random.randrange(1,52)).zfill(2) 
+    city_id = str(random.randrange(1,52)).zfill(2)
     
     if x % 101 == 0:
        cust_id = "BAD_DATA"
     if x % 500 == 0:
        cust_id = "16186961"
-       
+    #make california every 3 records   
+    #if x % 3 == 0:
+    #   state_id = "05"
+    #make florida every 4 records   
+    #if x % 4 == 0:
+    #   state_id = "10"
+    
+    store_id = state_id + city_id
     num_items = str(random.randrange(1,100))
        
-    data = json.dumps({"customerid": cust_id, "orderid": order_id, "orderamount": order_amount, "storeid": store_id, "items": num_items})
+    data = json.dumps({"customerId":cust_id,"orderId":order_id,"orderAmount":order_amount,"storeId":store_id,"numItems":num_items})
     
     req = urllib2.Request("http://localhost:8000", data, {'Content-Type': 'application/json'})
     print "POST URL:" + req.get_full_url()

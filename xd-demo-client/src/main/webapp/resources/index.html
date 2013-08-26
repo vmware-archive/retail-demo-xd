@@ -9,18 +9,19 @@
 <link href="css/bootstrap.css" rel="stylesheet">
 </head>
 <body>
-
 	<div class="container">
 		<div id="heading" class="masthead">
 		<table class="logo">
 			<tr>
-				<td><img src="img/logo.jpg" alt="Demo Logo" /></td>
+				<td class="logo" rowspan="2"><img src="img/logo.jpg" alt="Demo Logo" /></td>
 				<td class="sumTotal" data-bind="text: retailOrders().runningTotal"></td>
 			</tr>
+			<tr class="mapToggle">
+				<td><a href="#" class="maptoggle" data-bind="click: statesMap().toggleMap">Toggle Heat Map</a></td>
+			</tr>
 		</table>
-			
-			
-			
+		</div>
+		<div id="usmap" class="map">
 		</div>
 		<div id="main-content">
 			<table class="table table-striped">
@@ -42,17 +43,15 @@
 						<td data-bind="text: numItems"></td>
 					</tr>
 				</tbody>
-
-				<tbody>
-				</tbody>
 			</table>
-		</div>
+		</div>	
 	</div>
 
 	<!-- 3rd party javascript libraries -->
 	<script src="js/jquery-1.8.3.js"></script>
 	<script src="js/bootstrap.js"></script>
 	<script src="js/knockout-2.3.0.js"></script>
+	<script src="js/d3.v3.js"></script>
 
 	<!-- application -->
 	<script src="js/retail-order.js"></script>
@@ -63,11 +62,11 @@
 			ko.applyBindings(model);
 			model.start();
 
-			//refresh every 5 seconds
-			window.setInterval(model.refresh, 2000);
+			//refresh every x seconds
+			window.setInterval(model.refresh, 5000);
 
 		})();
 	</script>
-
+    
 </body>
 </html>

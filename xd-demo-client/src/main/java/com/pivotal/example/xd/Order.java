@@ -7,9 +7,11 @@ public class Order {
 	private int orderId;
 	private int customerId;
 	private double orderAmount;
-	private int storeId;
+	private String storeId;
+	private String stateId;
+	private String cityId;
 	private int numItems;
-
+	
 	private final DecimalFormat FD = new DecimalFormat("#.00");
 
 	public int getOrderId() {
@@ -36,11 +38,11 @@ public class Order {
 		this.orderAmount = Double.parseDouble(FD.format(orderAmount));
 	}
 
-	public int getStoreId() {
+	public String getStoreId() {
 		return storeId;
 	}
 
-	public void setStoreId(int storeId) {
+	public void setStoreId(String storeId) {
 		this.storeId = storeId;
 	}
 
@@ -52,4 +54,21 @@ public class Order {
 		this.numItems = numItems;
 	}
 
+	public String getStateId() {
+		return stateId;
+	}
+
+	public void setStateId(String stateId) {
+		this.stateId = stateId;
+	}
+
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
+	}
+
+	
 }
