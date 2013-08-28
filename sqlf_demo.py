@@ -6,27 +6,27 @@ import os
 import config
 
 sqlfire_setup_sql = """
-CREATE TABLE REALTIME_ORDERS
+create table realtime_orders
 (
-   CUSTOMER_ID INT NOT NULL,
-   ORDER_ID INT NOT NULL,
-   ORDER_AMOUNT NUMERIC(10,2),
-   STORE_ID VARCHAR(8),
-   NUM_ITEMS INT
+   customer_id INT NOT NULL,
+   order_id INT NOT NULL,
+   order_amount NUMERIC(10,2),
+   store_id VARCHAR(8),
+   num_items INT
 )  REPLICATE;
 """
 
 sqlfire_query_sql = """
 --Pull all of the records back
-SELECT * FROM REALTIME_ORDERS ORDER BY ORDER_AMOUNT DESC, STORE_ID ASC;
+SELECT * FROM realtime_orders ORDER BY order_amount DESC, STORE_ID ASC;
 
 --If spring xd is working, there should not be any orders under 5000
-SELECT MIN(ORDER_AMOUNT) FROM REALTIME_ORDERS;
+SELECT MIN(order_amount) FROM realtime_orders;
 """
 
 sqlfire_teardown_sql = """
 --Cleanup SQL
-DROP TABLE REALTIME_ORDERS;
+DROP TABLE realtime_orders;
 """
 
 def setup():

@@ -10,7 +10,7 @@ import urllib2
 def main():
   for x in xrange(10001):
     cust_id = str(x)
-    order_id = random.randrange(2000,10000)
+    order_id = str(random.randrange(2000,10000))
     order_amount = str('{:20.2f}'.format(random.uniform(100,10000))).strip()
     state_id = str(random.randrange(1,52)).zfill(2) 
     city_id = str(random.randrange(1,52)).zfill(2)

@@ -92,7 +92,6 @@ function MapModel() {
 		{
 			d3.select("svg").remove()
 			loadMap();
-			d3.select("svg").style("opacity", "1").transition().duration(10000).style("opacity", "0");
 		}
 	}
 	
@@ -113,14 +112,13 @@ function MapModel() {
 		var path = d3.geo.path().projection(projection);
 
 		// Define quantize scale to sort data values into buckets of color
-		var color = d3.scale.quantize().range([ "#006600", "#FF6666", "#CC0000" ]);
+		var color = d3.scale.quantize().range([ "green", "darkgreen", "red", "darkred" ]);
 		// Colors taken from colorbrewer.js, included in the D3 download
 		
 		// Create SVG element
 		var svg = d3.select("#usmap").append("svg").attr("width", w).attr(
-				"height", h).attr("opacity", "1");
+				"height", h);
 		
-		// Load in agriculture data
 		// d3.csv("us-ag-productivity-2004.csv", function(data) {
 		d3.json("/xd-demo-client/ordersumbystate", function(data) {
 			// Set input domain for color scale
@@ -173,7 +171,7 @@ function MapModel() {
 										return color(value);
 									} else {
 										// If value is undefined…
-										return "#006600";
+										return "grey";
 									}
 								});
 			});

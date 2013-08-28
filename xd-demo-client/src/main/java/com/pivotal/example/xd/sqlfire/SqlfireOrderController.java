@@ -33,13 +33,13 @@ public class SqlfireOrderController {
 	
 	@RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
 	public @ResponseBody Order orders(Long id) {
-		return _template.queryForObject("SELECT * FROM REALTIME_ORDERS WHERE ORDER_ID = " + id, new OrderRowMapper());
+		return _template.queryForObject("SELECT * FROM realtime_orders WHERE order_id = " + id, new OrderRowMapper());
 	}
 	
 	@RequestMapping(value = "/orders", method = RequestMethod.GET)
 	public @ResponseBody List<Order> allOrders() {	
 		logger.warn("RUNNING SQL!");
-		List<Order> orders = _template.query("SELECT * FROM REALTIME_ORDERS ORDER BY ORDER_AMOUNT DESC, STORE_ID", new OrderRowMapper());
+		List<Order> orders = _template.query("SELECT * FROM realtime_orders ORDER BY order_amount DESC, STORE_ID", new OrderRowMapper());
 		
 		return orders;
 	}
@@ -47,8 +47,8 @@ public class SqlfireOrderController {
 	@RequestMapping(value = "/ordersumbystate", method = RequestMethod.GET)
 	public @ResponseBody List<Order> orderSumByStore() {	
 		logger.warn("RUNNING ORDER BY SUM SQL!");
-		List<Order> orders = _template.query("select distinct(STORE_ID), sum(ORDER_AMOUNT) as ORDER_AMOUNT " +
-				"from app.realtime_orders group by STORE_ID order by STORE_ID asc;", new StoreRowMapper());
+		List<Order> orders = _template.query("select distinct(store_id), sum(order_amount) as order_amount " +
+				"from app.realtime_orders group by store_id order by store_id asc;", new StoreRowMapper());
 		
 		return sumOrdersByState(orders);
 	}
@@ -94,11 +94,11 @@ public class SqlfireOrderController {
 		@Override
 		public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Order order = new Order();
-			order.setOrderId(rs.getInt("ORDER_ID"));
-			order.setOrderAmount(rs.getDouble("ORDER_AMOUNT"));
-			order.setCustomerId(rs.getInt("CUSTOMER_ID"));
-			order.setStoreId(rs.getString("STORE_ID").replaceAll("\"", ""));
-			order.setNumItems(rs.getInt("NUM_ITEMS"));
+			order.setOrderId(rs.getInt("order_id"));
+			order.setOrderAmount(rs.getDouble("order_amount"));
+			order.setCustomerId(rs.getInt("customer_id"));
+			order.setStoreId(rs.getString("store_id").replaceAll("\"", ""));
+			order.setNumItems(rs.getInt("num_items"));
 			
 			return order;
 		}
@@ -110,8 +110,8 @@ public class SqlfireOrderController {
 		@Override
 		public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Order order = new Order();
-			order.setStoreId(rs.getString("STORE_ID").replaceAll("\"", ""));
-			order.setOrderAmount(rs.getDouble("ORDER_AMOUNT"));
+			order.setStoreId(rs.getString("store_id").replaceAll("\"", ""));
+			order.setOrderAmount(rs.getDouble("order_amount"));
 			order.setStateId(order.getStoreId().substring(0, 2));
 			order.setCityId(order.getStoreId().substring(2, 4));
 		

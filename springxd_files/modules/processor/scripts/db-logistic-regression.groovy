@@ -2,25 +2,23 @@
 import org.springframework.jdbc.core.JdbcTemplate
 import groovy.json.JsonSlurper
 
-// define the implementation in Groovy
 class LogisticRegression  {
-	
-    JdbcTemplate template
+
+	JdbcTemplate template
 	float threshold
-	
-	public boolean execute(Object order) {
-		
+    
+	public boolean execute(Object payload) {
+	    def jsonOrder = new JsonSlurper().parseText( payload );
 		String sql = "select madlib.logistic(madlib.array_dot(model.coef,ARRAY[" + 
-			order.get("orderAmount").asDouble() +"," +
-			order.get("storeId").asInt() + "," +
-			order.get("numItems").asInt() + "]::double precision[])) as score from model";
-		
+				jsonOrder.orderAmount +"," +
+				jsonOrder.storeId + "," +
+				jsonOrder.numItems + "]::double precision[])) as score from model";
+			
 		float score = template.queryForObject(sql, Float)
-		if(score >= threshold) {
-			System.out.println("Score: " + score)
+		if(score >= threshold) 
 			return true
-		} else {
+		else 
 			return false
-		}
 	}
 }
+	

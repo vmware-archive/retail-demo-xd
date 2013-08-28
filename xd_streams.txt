@@ -4,7 +4,9 @@ stream create --definition "http --port=8001 | transform --script=order-transfor
 ### Streams for running demo
 stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
-tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='REALTIME_ORDERS' | log" --name order_tap
+tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name order_tap
+
+stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name jdbc_test
 
 
 tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap

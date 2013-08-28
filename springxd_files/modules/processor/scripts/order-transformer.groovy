@@ -6,5 +6,5 @@
 import groovy.json.JsonSlurper
  
 def jsonOrder = new JsonSlurper().parseText( payload )
-def pipeString = jsonOrder.customerId + "|" + jsonOrder.orderId + "|" + jsonOrder.orderAmount + "|" + jsonOrder.storeId + "|" + jsonOrder.items
+def pipeString = jsonOrder.customerId + "|" + jsonOrder.orderId + "|" + jsonOrder.orderAmount + "|" + jsonOrder.storeId + "|" + jsonOrder.numItems
 return pipeString
