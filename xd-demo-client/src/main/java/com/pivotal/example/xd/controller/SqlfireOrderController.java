@@ -1,4 +1,4 @@
-package com.pivotal.example.xd.sqlfire;
+package com.pivotal.example.xd.controller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,20 +26,20 @@ import com.pivotal.example.xd.Order;
 public class SqlfireOrderController {
 	
 	@Autowired
-	JdbcTemplate _template;
+	JdbcTemplate jdbcTemplate;
 	
 	
 	static Logger logger = Logger.getLogger(SqlfireOrderController.class);
 	
 	@RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
 	public @ResponseBody Order orders(Long id) {
-		return _template.queryForObject("SELECT * FROM realtime_orders WHERE order_id = " + id, new OrderRowMapper());
+		return jdbcTemplate.queryForObject("SELECT * FROM realtime_orders WHERE order_id = " + id, new OrderRowMapper());
 	}
 	
 	@RequestMapping(value = "/orders", method = RequestMethod.GET)
 	public @ResponseBody List<Order> allOrders() {	
 		logger.warn("RUNNING SQL!");
-		List<Order> orders = _template.query("SELECT * FROM realtime_orders ORDER BY order_amount DESC, STORE_ID", new OrderRowMapper());
+		List<Order> orders = jdbcTemplate.query("SELECT * FROM realtime_orders ORDER BY order_amount DESC, STORE_ID", new OrderRowMapper());
 		
 		return orders;
 	}
@@ -47,7 +47,7 @@ public class SqlfireOrderController {
 	@RequestMapping(value = "/ordersumbystate", method = RequestMethod.GET)
 	public @ResponseBody List<Order> orderSumByStore() {	
 		logger.warn("RUNNING ORDER BY SUM SQL!");
-		List<Order> orders = _template.query("select distinct(store_id), sum(order_amount) as order_amount " +
+		List<Order> orders = jdbcTemplate.query("select distinct(store_id), sum(order_amount) as order_amount " +
 				"from app.realtime_orders group by store_id order by store_id asc;", new StoreRowMapper());
 		
 		return sumOrdersByState(orders);
