@@ -15,8 +15,7 @@
 .clearfix:before,
 .clearfix:after {
   display: table;
-  line-height: 0;
-  content: "";
+  line-height: 0; 
 }
 
 .clearfix:after {
@@ -233,12 +232,6 @@ body {
 a {
   color: #0088cc;
   text-decoration: none;
-}
-
-a:hover,
-a:focus {
-  color: #005580;
-  text-decoration: underline;
 }
 
 .img-rounded {

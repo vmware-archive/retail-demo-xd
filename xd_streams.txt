@@ -4,12 +4,39 @@ stream create --definition "http --port=8001 | transform --script=order-transfor
 ### Streams for running demo
 stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
+tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name order_tap
+
+#Taps for setting up rich gauges
+tap create --definition "tap order_stream.filter | json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_amount_tap
+tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_order_amount_tap
+
+
+## OLD
+
+stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name jdbc_test
+
+
 tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
 
-##  OLD  tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
+
+
+##  OLD  tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,STATE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,STATE_ID,:STATE_ID,:STORE_ID,:ITEMS)' | log" --name order_tap
 
 COPY/PASTE
 stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
 ## OLD  tap create --definition "tap order_stream.filter | order-amount-filter --minAmount='5000' | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
 tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | sqlf-order --url='sqlfire' --sql='insert into REALTIME_ORDERS (CUSTOMER_ID,ORDER_ID,ORDER_AMOUNT,STORE_ID,NUM_ITEMS) values (:CUSTOMER_ID,:ORDER_ID,:ORDER_AMOUNT,:STORE_ID,:ITEMS)' | log" --name order_tap
+
+SELECT DISTINCT(STORE_ID), SUM(ORDER_AMOUNT), MAX(ORDER_AMOUNT) 
+FROM REALTIME_ORDERS_HAWQ 
+WHERE STORE_ID >= '300' and STORE_ID <= '400' 
+GROUP BY STORE_ID
+ORDER BY STORE_ID ASC
+
+select distinct(STORE_ID), sum(ORDER_AMOUNT) as ORDER_AMOUNT from app.realtime_orders
+group by STORE_ID
+order by ORDER_AMOUNT desc;
+
+#fs.default.name=hdfs://localhost:8020
+fs.default.name=webhdfs://192.168.8.197:50070

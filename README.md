@@ -39,7 +39,8 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <li>In a terminal window run(will scp python demo scripts to pivotal hd and sqlfire VMs. Will copy spring xd scripts, lib jars, modules and sink config:
    <br/><code>./install.py</code>
 </li> 
-<li>Run Spring XD DIRT/Admin in a terminal window
+<li>Run Spring XD DIRT/Admin in a terminal window - TODO! CHANGE TO DISTRIBUTED XD
+DISTRIBUTED MODE REQUIRES THIS SHELL SETTING FOR REDIS(CONNECTION TIMEOUT FIX): "sudo sysctl -w net.inet.tcp.msl=1000"
    <br/><code>$SPRING_XD/xd/bin/xd-singlenode</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 

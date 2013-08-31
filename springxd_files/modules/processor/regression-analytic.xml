@@ -9,12 +9,7 @@
 
 	<int:channel id="input" />
 	
-	<int:chain input-channel="input" output-channel="output">
-		<int:transformer>
-			<bean class="org.springframework.integration.x.json.StringToJsonNodeTransformer"/>
-		</int:transformer>
-		<int:filter ref="logisticRegression" method="execute" />
-	</int:chain>
+	<int:filter ref="logisticRegression" method="execute" input-channel="input" output-channel="output" />
 	
 	<lang:groovy id="logisticRegression" script-source="db-logistic-regression.groovy">
     	<lang:property name="template" ref="template" />
