@@ -7,24 +7,49 @@
 	content="no-store, no-cache, must-revalidate, max-age=0">
 <link href="css/retail.css" rel="stylesheet">
 <link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/TableCSSCode.css" rel="stylesheet">
+
 </head>
 <body>
 	<div class="container">
 		<div id="heading" class="masthead">
-		<table class="logo">
-			<tr>
-				<td class="logo" rowspan="2"><img src="img/logo.jpg" alt="Demo Logo" /></td>
-				<td class="sumTotal" data-bind="text: retailOrders().runningTotal"></td>
-			</tr>
-			<tr class="mapToggle">
-				<td><a href="#" class="maptoggle" data-bind="click: statesMap().toggleMap">Toggle Heat Map</a></td>
-			</tr>
-		</table>
+			<table class="logo">
+				<tr>
+					<td class="logo" rowspan="2"><img src="img/logo.jpg"
+						alt="Demo Logo" /></td>
+					<td class="sumTotal" data-bind="text: retailOrders().runningTotal"></td>
+				</tr>
+				<tr class="mapToggle">
+					<td><a href="#" class="maptoggle"
+						data-bind="click: statesMap().toggleMap">Toggle Heat Map</a></td>
+				</tr>
+			</table>
 		</div>
-		<div id="usmap" class="map">
+		<div id="usmap" class="map"></div>
+		<div>
+			<table class="table2">
+				<tr>
+					<th></th>
+					<th>Last</th>
+					<th>Minimum</th>
+					<th>Maximum</th>
+					<th>Average</th>
+					<th>Count</th>
+				</tr>
+				<tbody data-bind="foreach: orderAnalytics().rows">
+					<tr>
+						<th class="th2" data-bind="text: analyticsKey"></th>
+						<td data-bind="text: lastAmt"></td>
+						<td data-bind="text: minAmt"></td>
+						<td data-bind="text: maxAmt"></td>
+						<td data-bind="text: avgAmt"></td>
+						<td data-bind="text: orderCnt"></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 		<div id="main-content">
-			<table class="table table-striped">
+			<table class="table table-striped" id="orderdata">
 				<thead>
 					<tr>
 						<th>Store ID</th>
@@ -44,7 +69,7 @@
 					</tr>
 				</tbody>
 			</table>
-		</div>	
+		</div>
 	</div>
 
 	<!-- 3rd party javascript libraries -->
@@ -52,6 +77,7 @@
 	<script src="js/bootstrap.js"></script>
 	<script src="js/knockout-2.3.0.js"></script>
 	<script src="js/d3.v3.js"></script>
+	<script src="js/accounting.js"></script>
 
 	<!-- application -->
 	<script src="js/retail-order.js"></script>
@@ -67,6 +93,6 @@
 
 		})();
 	</script>
-    
+
 </body>
 </html>

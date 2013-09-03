@@ -1,5 +1,8 @@
 package com.pivotal.example.xd.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,23 +22,17 @@ public class RedisAnalyticsController {
 	static Logger logger = Logger.getLogger(SqlfireOrderController.class);
 	
 	@RequestMapping(value = "/xdanalytics/orders", method = RequestMethod.GET)
-	public @ResponseBody OrderAnalytics orderAnalyticsFromXd() {
+	public @ResponseBody List<OrderAnalytics> orderAnalyticsFromXd() {
 		
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new StringRedisSerializer());
 		
-		OrderAnalytics oa = new OrderAnalytics((String)redisTemplate.opsForValue().get("richgauges.order_gauge"));
-		return oa;
-	}
-	
-	@RequestMapping(value = "/xdanalytics/fraudorders", method = RequestMethod.GET)
-	public @ResponseBody OrderAnalytics fraudOrderAnalyticsFromXd() {
-		
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new StringRedisSerializer());
-		
-		OrderAnalytics oa = new OrderAnalytics((String)redisTemplate.opsForValue().get("richgauges.fraud_order_gauge"));
-		return oa;
+		OrderAnalytics oaAll = new OrderAnalytics("richgauges.order_gauge", (String)redisTemplate.opsForValue().get("richgauges.order_gauge"));
+		OrderAnalytics oaFraud = new OrderAnalytics("richgauges.fraud_order_gauge", (String)redisTemplate.opsForValue().get("richgauges.fraud_order_gauge"));
+		ArrayList<OrderAnalytics> oaList = new ArrayList<OrderAnalytics>();
+		oaList.add(oaAll);
+		oaList.add(oaFraud);
+		return oaList;
 	}
 	
 }

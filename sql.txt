@@ -1,0 +1,13 @@
+### SOME SAMPLE SQL #####
+SELECT DISTINCT(STORE_ID), SUM(ORDER_AMOUNT), MAX(ORDER_AMOUNT) 
+FROM REALTIME_ORDERS_HAWQ 
+WHERE STORE_ID >= '300' and STORE_ID <= '400' 
+GROUP BY STORE_ID
+ORDER BY STORE_ID ASC
+
+select distinct(STORE_ID), sum(ORDER_AMOUNT) as ORDER_AMOUNT from app.realtime_orders
+group by STORE_ID
+order by ORDER_AMOUNT desc;
+
+#fs.default.name=hdfs://localhost:8020
+fs.default.name=webhdfs://192.168.8.197:50070

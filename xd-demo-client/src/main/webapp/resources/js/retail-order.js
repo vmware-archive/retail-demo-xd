@@ -2,6 +2,7 @@ function ApplicationModel() {
 	var self = this;
 
 	self.retailOrders = ko.observable(new OrderModel());
+	self.orderAnalytics = ko.observable(new OrderAnalyticsModel());
 	self.statesMap = ko.observable(new MapModel());
 
 	self.start = function() {
@@ -9,7 +10,10 @@ function ApplicationModel() {
 		$.getJSON("/xd-demo-client/orders", function(data) {
 			self.retailOrders().loadOrders(data);
 		});
-
+		$.getJSON("/xd-demo-client/xdanalytics/orders", function(data) {
+			self.orderAnalytics().loadOrderAnalytics(data);
+		});
+		self.statesMap().loadMap(false);
 	}
 
 	self.refresh = function() {
@@ -17,10 +21,14 @@ function ApplicationModel() {
 		$.getJSON("/xd-demo-client/orders", function(data) {
 			self.retailOrders().reloadOrders(data);
 		});
-		self.statesMap().reloadMap();
+		$.getJSON("/xd-demo-client/xdanalytics/orders", function(data) {
+			self.orderAnalytics().reloadOrderAnalytics(data);
+		});
+		self.statesMap().loadMap(true);
 	}
 }
 
+//Order data table code starts here
 function OrderModel() {
 	var self = this;
 	self.rows = ko.observableArray();
@@ -35,7 +43,7 @@ function OrderModel() {
 			total += row.orderAmount;
 			rowLookup[row.orderId] = row;
 		}
-		self.runningTotal("$" + total.toFixed(2));
+		self.runningTotal(accounting.formatMoney(total));
 	};
 
 	self.reloadOrders = function(orders) {
@@ -47,9 +55,8 @@ function OrderModel() {
 			total += row.orderAmount;
 			rowLookup[row.orderId] = row;
 		}
-		self.runningTotal("$" + total.toFixed(2));
+		self.runningTotal(accounting.formatMoney(total));
 	};
-
 };
 
 function OrderRow(data) {
@@ -57,49 +64,67 @@ function OrderRow(data) {
 	self.storeId = data.storeId;
 	self.customerId = data.customerId;
 	self.orderAmount = data.orderAmount;
+	
 	self.formattedOrderAmount = ko.computed(function() {
-		return "$" + self.orderAmount.toFixed(2);
+		return accounting.formatMoney(self.orderAmount);
 	});
 	self.orderId = data.orderId;
 	self.numItems = data.numItems;
+};
 
-	self.change = ko.observable(0);
-	self.arrow = ko.observable();
+//Spring XD analytic summary code starts here
+function OrderAnalyticsModel() {
+	var self = this;
+	self.rows = ko.observableArray();
+	var rowLookup = {};
+
+	self.loadOrderAnalytics = function(data) {
+		for ( var i = 0; i < data.length; i++) {
+			var row = new OrderAnalyticsRow(data[i]);
+			self.rows.push(row);
+		}
+	};
+
+	self.reloadOrderAnalytics = function(data) {
+		self.rows.removeAll();
+		for ( var i = 0; i < data.length; i++) {
+			var row = new OrderAnalyticsRow(data[i]);
+			self.rows.push(row);
+		}
+	};
+};
+
+function OrderAnalyticsRow(data) {
+	var self = this;
+	self.lastAmt = accounting.formatMoney(data.last);
+	self.minAmt = accounting.formatMoney(data.min);
+	self.maxAmt = accounting.formatMoney(data.max);
+	self.avgAmt = accounting.formatMoney(data.avgOrder);
+	self.orderCnt = data.count;
+	self.analyticsKey = data.analyticsKey;
 };
 
 // MAP CODE STARTS HERE
 function MapModel() {
-	
-	var self = this;
-	var mapVisible = false;
-	
-	self.toggleMap = function() {
-		
-		if (mapVisible == false)
-		{
-			mapVisible = true;
-			loadMap();
-		}
-		else
-		{
-			mapVisible = false;
-			hideMap();
-		}
-	}
-	
-    self.reloadMap = function() {
-		if (mapVisible == true)
-		{
-			d3.select("svg").remove()
-			loadMap();
-		}
-	}
-	
-	hideMap = function() {
-		d3.select("svg").remove();
-	}
 
-	loadMap = function() {
+	var self = this;
+	var mapVisible = true;
+
+	self.toggleMap = function() {
+		if (mapVisible == false) {
+			d3.select("#main-content").transition().duration(500).style("opacity", 0);
+			d3.select("svg").transition().duration(500).style("opacity", 1).attr("width", 800).attr(
+					"height", 500);
+			mapVisible = true;
+		} else {
+			d3.select("svg").transition().duration(500).style("opacity", 0).attr("width", 0).attr(
+					"height", 0);
+			d3.select("#main-content").transition().duration(500).style("opacity", 1);
+			mapVisible = false;
+		}
+	};
+	
+	self.loadMap = function(refresh) {
 		// Width and height
 		var w = 800;
 		var h = 500;
@@ -112,13 +137,21 @@ function MapModel() {
 		var path = d3.geo.path().projection(projection);
 
 		// Define quantize scale to sort data values into buckets of color
-		var color = d3.scale.quantize().range([ "green", "darkgreen", "red", "darkred" ]);
+		var color = d3.scale.quantize().range(
+				[ "green", "darkgreen", "red", "darkred" ]);
 		// Colors taken from colorbrewer.js, included in the D3 download
-		
+
 		// Create SVG element
-		var svg = d3.select("#usmap").append("svg").attr("width", w).attr(
-				"height", h);
-		
+		var svg;
+		if (refresh == true) {
+			svg = d3.select("svg");
+		}
+		else
+		{
+			svg = d3.select("#usmap").append("svg").attr("width", w).attr(
+					"height", h);
+		}
+
 		// d3.csv("us-ag-productivity-2004.csv", function(data) {
 		d3.json("/xd-demo-client/ordersumbystate", function(data) {
 			// Set input domain for color scale
@@ -158,24 +191,39 @@ function MapModel() {
 						}
 					}
 				}
+				if (refresh == true) {
+					// Bind data and create one path per GeoJSON feature
+					svg.selectAll("path").data(json.features).transition().duration(500).attr(
+							"d", path).style("fill", function(d) {
+						// Get data value
+						var value = d.properties.value;
 
-				// Bind data and create one path per GeoJSON feature
-				svg.selectAll("path").data(json.features).enter()
-						.append("path").attr("d", path).style("fill",
-								function(d) {
-									// Get data value
-									var value = d.properties.value;
+						if (value) {
+							// If value existsÉ
+							return color(value);
+						} else {
+							// If value is undefinedÉ
+							return "grey";
+						}
+					});
+				} else {
+					// Bind data and create one path per GeoJSON feature
+					svg.selectAll("path").data(json.features).enter().append(
+							"path").attr("d", path).style("fill", function(d) {
+						// Get data value
+						var value = d.properties.value;
 
-									if (value) {
-										// If value existsÉ
-										return color(value);
-									} else {
-										// If value is undefinedÉ
-										return "grey";
-									}
-								});
+						if (value) {
+							// If value existsÉ
+							return color(value);
+						} else {
+							// If value is undefinedÉ
+							return "grey";
+						}
+					});
+				}
 			});
 		});
 	};
-	
+
 };

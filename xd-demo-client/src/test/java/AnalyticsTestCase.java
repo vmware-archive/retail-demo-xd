@@ -1,3 +1,4 @@
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import com.pivotal.example.xd.OrderAnalytics;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/test-context.xml" })
+@Ignore
 public class AnalyticsTestCase {
 
 	@Autowired

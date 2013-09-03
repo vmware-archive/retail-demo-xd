@@ -642,7 +642,7 @@ a {
 }
 
 p {
-  margin: 0 0 10px;
+  margin: 0 0 0px;
 }
 
 .lead {
@@ -2005,11 +2005,33 @@ table {
   line-height: 20px;
   text-align: left;
   vertical-align: top;
+  border-bottom: 1px solid #dddddd;
+}
+
+.table2 {
+  width: 800px;
+  margin-bottom: 20px;
+}
+
+table2 th,
+.table2 td {
+  padding: 8px;
+  line-height: 20px;
+  text-align: center;
+  vertical-align: top;
   border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+}
+
+.table2 .th2 {
+  font-weight: bold;
+   text-align: right;
+   padding-right: 10px;
 }
 
 .table th {
   font-weight: bold;
+   text-align: left;
 }
 
 .table thead th {

@@ -47,9 +47,8 @@ DISTRIBUTED MODE REQUIRES THIS SHELL SETTING FOR REDIS(CONNECTION TIMEOUT FIX): 
  
 <br/><code>$SPRING_XD/shell/bin/spring-xd-shell</code>
 </li>
-<li>In Spring XD Shell - Create Hadoop Stream and tap stream
-Refer to xd_streams.txt file for details on the syntax. You may need to change to "tap @ order_stream" reflect the proper
-sqlfire hostname.  make sure you create the stream for accepting the training set data</li>
+<li>In Spring XD Shell - Create Hadoop ingest, Pivotal HD analytics tap and SQLFire sink.
+<code>script --file $DEMO_HOME/xd_streams.txt</li>
 
 <li>[PIVOTALHD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
    <br/><code>./demo.py setup_hdfs</code>
