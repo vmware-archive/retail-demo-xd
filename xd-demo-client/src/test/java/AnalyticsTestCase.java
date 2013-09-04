@@ -25,8 +25,8 @@ public class AnalyticsTestCase {
 		//System.out.println(redisTemplate.opsForValue().get("key"));
 		//redisTemplate.opsForValue().set("key", "abcd");
 		
-		OrderAnalytics oa = new OrderAnalytics((String)redisTemplate.opsForValue().get("richgauges.order_gauge"));
-		System.out.println(oa);
+		//OrderAnalytics oa = new OrderAnalytics((String)redisTemplate.opsForValue().get("richgauges.order_gauge"));
+		//System.out.println(oa);
 		
 	}
 

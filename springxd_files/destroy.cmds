@@ -1,0 +1,7 @@
+tap destroy --name fraud_tap
+
+tap destroy --name fraud_gauge_tap
+
+tap destroy --name order_gauge_tap
+
+stream destroy --name order_stream

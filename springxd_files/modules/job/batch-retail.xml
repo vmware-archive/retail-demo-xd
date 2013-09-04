@@ -111,7 +111,8 @@
 		println sql
 	</hadoop:script>
 	<hadoop:script id="hdfsArchiveScript" language="groovy">
-		fsh.mv("/xd/order_stream/*","/xd/order_stream_archive")
+		fsh.cp("/xd/order_stream/*","/xd/order_stream_archive")
+		fsh.rm("/xd/order_stream/*")
 		println "hdfs live:" + fsh.ls("/xd/order_stream").toString()
 		println "hdfs archive:" + fsh.ls("/xd/order_stream_archive").toString()
 	</hadoop:script>
