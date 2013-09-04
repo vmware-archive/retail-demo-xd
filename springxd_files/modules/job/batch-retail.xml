@@ -4,69 +4,116 @@
 	xmlns:batch="http://www.springframework.org/schema/batch"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:script="http://www.springframework.org/schema/integration/scripting"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/integration/scripting http://www.springframework.org/schema/integration/scripting/spring-integration-scripting.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
-	<context:property-placeholder
-		properties-ref="myProperties" />
-
-	<util:properties id="myProperties">
-		<prop key="hd.fs">webhdfs://192.168.8.199:50070</prop>
-	</util:properties>
-
-	<hadoop:configuration>
-		fs.default.name=${hd.fs}
-	</hadoop:configuration>
-
+    <hadoop:configuration register-url-handler="false" properties-location="file:${xd.home}/config/hadoop.properties"/>
+ 	
+ 	<!-- Datasource for SQLFire -->
+	<bean id="dataSourceSqlFire" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.vmware.sqlfire.jdbc.ClientDriver" />
+		<property name="url" value="jdbc:sqlfire://${memUrl:sqlfire}:7711" />
+		<property name="username" value="${username:gpadmin}" />
+		<property name="password" value="${password:password}" />
+	</bean>
+	<bean id="sqlFireTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceSqlFire" />
+	</bean>
+	
+	<!-- Datasource for HAWQ -->
+	<bean id="dataSourceHawq" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://${url:pivhdsne}:5432/gpadmin" />
+		<property name="username" value="${username:gpadmin}" />
+		<property name="password" value="${password:password}" />
+	</bean>
+	<bean id="hawqTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceHawq"/>
+	</bean>
+	
 	<!-- required since Hadoop Job is a class not an interface and we need to 
 		use a Job with step scope to access #{jobParameters['...']} -->
 	<bean class="org.springframework.batch.core.scope.StepScope">
 		<property name="proxyTargetClass" value="true" />
 	</bean>
- 
+
+	<!-- Batch Job Logic -->
 	<batch:job id="retailBatchJob">
-		<batch:step id="sqlfArchive" next="hdfsArchive">
-			<batch:tasklet ref="scriptTasklet1" />
+		<batch:step id="sqlfTeardown" next="sqlfCreate">
+			<batch:tasklet ref="sqlfTeardownTasklet" />
 		</batch:step>
-		<batch:step id="hdfsArchive" next="sqlfSetup">
-			<batch:tasklet ref="scriptTasklet2" />
+		<batch:step id="sqlfCreate" next="hawqTeardown">
+			<batch:tasklet ref="sqlfCreateTasklet" />
 		</batch:step>
-		<batch:step id="sqlfSetup" next="hadoopSetup">
-			<batch:tasklet ref="scriptTasklet3" />
+		<batch:step id="hawqTeardown" next="hawqCreate">
+			<batch:tasklet ref="hawqTeardownTasklet" />
 		</batch:step>
-		<batch:step id="hadoopSetup">
-			<batch:tasklet ref="scriptTasklet4" />
+		<batch:step id="hawqCreate" next="hdfsArchive">
+			<batch:tasklet ref="hawqCreateTasklet" />
+		</batch:step>
+		<batch:step id="hdfsArchive">
+			<batch:tasklet ref="hdfsArchiveTasklet" />
 		</batch:step>
 	</batch:job>
+	
+	<!-- Batch job script tasklet references -->
+	<hadoop:script-tasklet id="sqlfTeardownTasklet"
+		script-ref="sqlfTeardownScript" scope="step" />
+	<hadoop:script-tasklet id="sqlfCreateTasklet"
+		script-ref="sqlfCreateScript" scope="step" />
+	<hadoop:script-tasklet id="hawqTeardownTasklet"
+		script-ref="hawqTeardownScript" scope="step" />
+	<hadoop:script-tasklet id="hawqCreateTasklet"
+		script-ref="hawqCreateScript" scope="step" />
+	<hadoop:script-tasklet id="hdfsArchiveTasklet"
+		script-ref="hdfsArchiveScript" scope="step" />
 
-	<hadoop:script-tasklet id="scriptTasklet1"
-		script-ref="hdfsScript1" scope="step" />
-	<hadoop:script-tasklet id="scriptTasklet2"
-		script-ref="hdfsScript2" scope="step" />
-	<hadoop:script-tasklet id="scriptTasklet3"
-		script-ref="hdfsScript3" scope="step" />
-	<hadoop:script-tasklet id="scriptTasklet4"
-		script-ref="hdfsScript4" scope="step" />
-
-	<hadoop:script id="hdfsScript1" language="groovy">
-		println fsh.ls("/").toString()
-		println "hdfsScript1"
+	<!-- Batch job script references -->
+	<hadoop:script id="sqlfTeardownScript" language="groovy">
+		<hadoop:property name="template" ref="sqlFireTemplate" />
+		sql = "drop table app.realtime_orders"
+		template.execute(sql)
+		println sql
 	</hadoop:script>
-	<hadoop:script id="hdfsScript2" language="groovy">
-		println fsh.ls("/").toString()
-		println "hdfsScript2"
+	<hadoop:script id="hawqCreateScript" language="groovy">
+		<hadoop:property name="template" ref="hawqTemplate" />
+		sql = "CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&Accessor=TextFileAccessor&Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|')"
+		template.execute(sql)
+		println sql
+		
+		sql2 = "CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf;"
+		template.execute(sql2)
+		println sql2
 	</hadoop:script>
-	<hadoop:script id="hdfsScript3" language="groovy">
-		println fsh.ls("/").toString()
-		println "hdfsScript3"
+	<hadoop:script id="hawqTeardownScript" language="groovy">
+		<hadoop:property name="template" ref="sqlFireTemplate" />
+		sql = "DROP TABLE realtime_orders_hawq;"
+		template.execute(sql)
+		println sql
+		
+		sql2 = "DROP EXTERNAL TABLE realtime_orders_pxf;"
+		template.execute(sql2)
+		println sql2
 	</hadoop:script>
-	<hadoop:script id="hdfsScript4" language="groovy">
-		println fsh.ls("/").toString()
-		println "hdfsScript4"
+	<hadoop:script id="sqlfCreateScript" language="groovy">
+		<hadoop:property name="template" ref="sqlFireTemplate" />
+		sql = "CREATE TABLE APP.realtime_orders(customer_id INT NOT NULL, order_id INT NOT NULL, order_amount NUMERIC(10,2), store_id VARCHAR(8), num_items INT) REPLICATE"
+		template.execute(sql)
+		println sql
 	</hadoop:script>
-
+	<hadoop:script id="hdfsArchiveScript" language="groovy">
+		fsh.mv("/xd/order_stream/*","/xd/order_stream_archive")
+		println "hdfs live:" + fsh.ls("/xd/order_stream").toString()
+		println "hdfs archive:" + fsh.ls("/xd/order_stream_archive").toString()
+	</hadoop:script>
 </beans>
 
