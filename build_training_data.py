@@ -12,7 +12,9 @@ def main():
     cust_id = str(x)
     order_id = str(random.randrange(2000,10000))
     order_amount = str('{:20.2f}'.format(random.uniform(100,10000))).strip()
-    store_id = str(random.randrange(1,1000))
+    state_id = str(random.randrange(1,52)).zfill(2) 
+    city_id = str(random.randrange(1,99)).zfill(2)
+    store_id = state_id + city_id
 
     if x % 500 == 0:
        cust_id = "16186961"
