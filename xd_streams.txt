@@ -8,6 +8,4 @@ tap create --definition "tap order_stream.filter | regression-analytic --thresho
 
 tap create --definition "tap order_stream.filter | json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_tap
 
-trigger create --name order_archive_trigger --definition "trigger --fixedRate='300000'"
-
-job create --name batchRetailArchive --definition "batch-retail --trigger=order_archive_trigger"
+job create --name batchAnalytic --definition "batch-analytic"
