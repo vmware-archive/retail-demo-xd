@@ -7,3 +7,6 @@ tap create --definition "tap order_stream.filter | regression-analytic --thresho
 tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_gauge_tap
 
 tap create --definition "tap order_stream.filter | json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_tap
+
+trigger create --name ordertrigger --definition "trigger --fixedRate='5000'"
+job create --name batchRetail --definition "batch-retail --trigger=ordertrigger"

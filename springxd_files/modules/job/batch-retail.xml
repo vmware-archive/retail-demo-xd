@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:hadoop="http://www.springframework.org/schema/hadoop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder
+		properties-ref="myProperties" />
+
+	<util:properties id="myProperties">
+		<prop key="hd.fs">webhdfs://192.168.8.199:50070</prop>
+	</util:properties>
+
+	<hadoop:configuration>
+		fs.default.name=${hd.fs}
+	</hadoop:configuration>
+
+	<!-- required since Hadoop Job is a class not an interface and we need to 
+		use a Job with step scope to access #{jobParameters['...']} -->
+	<bean class="org.springframework.batch.core.scope.StepScope">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+ 
+	<batch:job id="retailBatchJob">
+		<batch:step id="sqlfArchive" next="hdfsArchive">
+			<batch:tasklet ref="scriptTasklet1" />
+		</batch:step>
+		<batch:step id="hdfsArchive" next="sqlfSetup">
+			<batch:tasklet ref="scriptTasklet2" />
+		</batch:step>
+		<batch:step id="sqlfSetup" next="hadoopSetup">
+			<batch:tasklet ref="scriptTasklet3" />
+		</batch:step>
+		<batch:step id="hadoopSetup">
+			<batch:tasklet ref="scriptTasklet4" />
+		</batch:step>
+	</batch:job>
+
+	<hadoop:script-tasklet id="scriptTasklet1"
+		script-ref="hdfsScript1" scope="step" />
+	<hadoop:script-tasklet id="scriptTasklet2"
+		script-ref="hdfsScript2" scope="step" />
+	<hadoop:script-tasklet id="scriptTasklet3"
+		script-ref="hdfsScript3" scope="step" />
+	<hadoop:script-tasklet id="scriptTasklet4"
+		script-ref="hdfsScript4" scope="step" />
+
+	<hadoop:script id="hdfsScript1" language="groovy">
+		println fsh.ls("/").toString()
+		println "hdfsScript1"
+	</hadoop:script>
+	<hadoop:script id="hdfsScript2" language="groovy">
+		println fsh.ls("/").toString()
+		println "hdfsScript2"
+	</hadoop:script>
+	<hadoop:script id="hdfsScript3" language="groovy">
+		println fsh.ls("/").toString()
+		println "hdfsScript3"
+	</hadoop:script>
+	<hadoop:script id="hdfsScript4" language="groovy">
+		println fsh.ls("/").toString()
+		println "hdfsScript4"
+	</hadoop:script>
+
+</beans>
+
