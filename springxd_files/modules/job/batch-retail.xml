@@ -86,21 +86,21 @@
 	</hadoop:script>
 	<hadoop:script id="hawqCreateScript" language="groovy">
 		<hadoop:property name="template" ref="hawqTemplate" />
-		sql = "CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&Accessor=TextFileAccessor&Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|')"
+		sql = """CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&amp;Accessor=TextFileAccessor&amp;Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|')"""
 		template.execute(sql)
 		println sql
 		
-		sql2 = "CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf;"
+		sql2 = "CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf"
 		template.execute(sql2)
 		println sql2
 	</hadoop:script>
 	<hadoop:script id="hawqTeardownScript" language="groovy">
-		<hadoop:property name="template" ref="sqlFireTemplate" />
-		sql = "DROP TABLE realtime_orders_hawq;"
+		<hadoop:property name="template" ref="hawqTemplate" />
+		sql = "DROP TABLE if exists realtime_orders_hawq"
 		template.execute(sql)
 		println sql
 		
-		sql2 = "DROP EXTERNAL TABLE realtime_orders_pxf;"
+		sql2 = "DROP EXTERNAL TABLE if exists realtime_orders_pxf"
 		template.execute(sql2)
 		println sql2
 	</hadoop:script>
