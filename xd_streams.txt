@@ -10,3 +10,5 @@ tap create --definition "tap order_stream.filter | json-field-extractor --fieldN
 
 trigger create --name ordertrigger --definition "trigger --fixedRate='5000'"
 job create --name batchRetail --definition "batch-retail --trigger=ordertrigger"
+
+job create --name batchAnalytic --definition "batch-analytic"

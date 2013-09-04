@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:hadoop="http://www.springframework.org/schema/hadoop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<hadoop:configuration register-url-handler="false" properties-location="file:${xd.home}/config/hadoop.properties"/>
+	
+	<!-- Datasource for HAWQ -->
+	<bean id="dataSourceHawq" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://${url:pivhdsne}:5432/gpadmin" />
+		<property name="username" value="${username:gpadmin}" />
+		<property name="password" value="${password:password}" />
+	</bean>
+	<bean id="hawqTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceHawq"/>
+	</bean>
+
+	<!-- required since Hadoop Job is a class not an interface and we need to 
+		use a Job with step scope to access #{jobParameters['...']} -->
+	<bean class="org.springframework.batch.core.scope.StepScope">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+ 
+	<batch:job id="analyticBatchJob">
+		<batch:step id="load" next="setup">
+			<batch:tasklet ref="loadTasklet" />
+		</batch:step>
+		<batch:step id="setup" next="train">
+			<batch:tasklet ref="setupTasklet" />
+		</batch:step>
+		<batch:step id="train">
+			<batch:tasklet ref="trainTasklet" />
+		</batch:step>
+	</batch:job>
+
+	<hadoop:script-tasklet id="loadTasklet"
+		script-ref="loadScript" scope="step" />
+	<hadoop:script-tasklet id="setupTasklet"
+		script-ref="setupScript" scope="step" />
+	<hadoop:script-tasklet id="trainTasklet"
+		script-ref="trainScript" scope="step" />
+
+	<hadoop:script id="loadScript" language="groovy">
+		try {
+			fsh.put("${xd.home}/data/training.txt","/xd/training_stream/training.txt")
+		} catch(e) { }
+		
+		println fsh.ls("/xd/training_stream").toString()
+		println "Completed load script"
+	</hadoop:script>
+	<hadoop:script id="setupScript" language="groovy">
+	 	<hadoop:property name="template" ref="hawqTemplate" />
+		//setup the HAWQ tables for analytics
+		
+		sql = "DROP EXTERNAL TABLE IF EXISTS orders_training_pxf CASCADE;" 
+		template.execute(sql)
+		println "executed: " + sql
+	 	
+		sql1 = "CREATE EXTERNAL TABLE orders_training_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer, is_fraudulent integer) LOCATION ('pxf://pivhdsne:50070/xd/training_stream/training.txt?Fragmenter=HdfsDataFragmenter&amp;Accessor=TextFileAccessor&amp;Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|');"
+		template.execute(sql1)
+		println "executed: " + sql1
+		
+		sql2 = "DROP VIEW IF EXISTS regression_model CASCADE; CREATE VIEW regression_model AS SELECT order_id, CASE WHEN is_fraudulent=1 THEN TRUE ELSE FALSE END AS dep_var, ARRAY[order_amount,store_id,num_items]::float8[] as features, is_fraudulent FROM orders_training_pxf;"
+		template.execute(sql2)
+		println sql2		
+		
+		println "Completed setup script" 
+	</hadoop:script>
+	<hadoop:script id="trainScript" language="groovy">
+		<hadoop:property name="template" ref="hawqTemplate" />
+		//run the analytic
+		
+		sql = "DROP TABLE IF EXISTS model; create table model as select * from madlib.logregr('regression_model','dep_var','features');"
+		template.execute(sql)
+		println "executed: " + sql
+		
+		println "Completed train script"
+	</hadoop:script>
+
+</beans>
+
