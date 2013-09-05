@@ -13,9 +13,11 @@ class LogisticRegression  {
 				jsonOrder.storeId + "," +
 				jsonOrder.numItems + "]::double precision[])) as score from model"
 		float score = template.queryForObject(sql, Float)
+		
 		if(score >= threshold) 
 		{
 		    System.out.println("fraud score alert:" + score)
+		    System.out.println("customer id:" + jsonOrder.customerId)
 			return true
 		}
 		else 

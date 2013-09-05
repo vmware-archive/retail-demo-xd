@@ -1,1 +1,0 @@
-job create --name batchRetailArchive --definition "batch-retail"

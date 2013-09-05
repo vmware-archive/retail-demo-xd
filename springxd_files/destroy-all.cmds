@@ -4,4 +4,8 @@ tap destroy --name fraud_gauge_tap
 
 tap destroy --name order_gauge_tap
 
+job destroy --name batchRetailArchive
+
+job destroy --name batchAnalytic 
+
 stream destroy --name order_stream

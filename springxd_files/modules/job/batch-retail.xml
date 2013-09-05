@@ -81,18 +81,29 @@
 	<hadoop:script id="sqlfTeardownScript" language="groovy">
 		<hadoop:property name="template" ref="sqlFireTemplate" />
 		sql = "drop table app.realtime_orders"
-		template.execute(sql)
+		
+		try {
+			template.execute(sql)
+		}
+		catch(Exception e) {
+			println e
+		}
 		println sql
 	</hadoop:script>
 	<hadoop:script id="hawqCreateScript" language="groovy">
 		<hadoop:property name="template" ref="hawqTemplate" />
-		sql = """CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&amp;Accessor=TextFileAccessor&amp;Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|')"""
-		template.execute(sql)
-		println sql
+		try {
+			sql = """CREATE EXTERNAL TABLE realtime_orders_pxf (customer_id int, order_id integer, order_amount numeric(10,2), store_id integer, num_items integer) LOCATION ('pxf://pivhdsne:50070/xd/order_stream/order_stream-*.txt?Fragmenter=HdfsDataFragmenter&amp;Accessor=TextFileAccessor&amp;Resolver=TextResolver') FORMAT 'TEXT' (DELIMITER = '|')"""
+			template.execute(sql)
+			println sql
 		
-		sql2 = "CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf"
-		template.execute(sql2)
-		println sql2
+			sql2 = "CREATE TABLE realtime_orders_hawq as select * from realtime_orders_pxf"
+			template.execute(sql2)
+			println sql2
+		}
+		catch(Exception e) {
+			println "External table and HAWQ table not created, probably because there are no HDFS files"
+		}
 	</hadoop:script>
 	<hadoop:script id="hawqTeardownScript" language="groovy">
 		<hadoop:property name="template" ref="hawqTemplate" />
@@ -113,6 +124,7 @@
 	<hadoop:script id="hdfsArchiveScript" language="groovy">
 		fsh.cp("/xd/order_stream/*","/xd/order_stream_archive")
 		fsh.rm("/xd/order_stream/*")
+		
 		println "hdfs live:" + fsh.ls("/xd/order_stream").toString()
 		println "hdfs archive:" + fsh.ls("/xd/order_stream_archive").toString()
 	</hadoop:script>

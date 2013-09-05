@@ -1,4 +1,8 @@
-stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
+tap destroy --name fraud_tap
+
+tap destroy --name fraud_gauge_tap
+
+tap destroy --name order_gauge_tap
 
 tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name fraud_tap
 
