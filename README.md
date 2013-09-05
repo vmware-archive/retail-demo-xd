@@ -41,8 +41,8 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
    <br/><code>./install.py</code>
 </li> 
 <li>Run 3 Spring XD runtimes in terminal windows(redis, admin, container)
-  <br/><code>sudo sysctl -w net.inet.tcp.msl=1000
-            $SPRING_XD/redis/bin/redis-server
+  <br/><code>sudo sysctl -w net.inet.tcp.msl=1000<br/>
+            $SPRING_XD/redis/bin/redis-server<br/>
             $SPRING_XD/xd/bin/xd-container</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 
@@ -50,7 +50,7 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <br/><code>$SPRING_XD/shell/bin/spring-xd-shell</code>
 </li>
 <li>In Spring XD Shell - Create Hadoop ingest, Pivotal HD analytics tap and SQLFire sink.
-<code>script --file ../../xd/create-all.cmds</code></li>
+<code>script --file ../../xd/cmd/create-all.cmds</code></li>
 
 <li>[PIVOTALHD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
    <br/><code>./demo.py setup_hdfs</code>
@@ -65,10 +65,10 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 </li>
 
 <li>In Spring XD Shell - Re-run batch jobs(should delete SQLFire data, populate HAWQ tables, and re-run analytic training model)
-<code>script --file ../../xd/deploy-batch.cmds</code></li>
+<br/><code>script --file ../../xd/cmd/deploy-batch.cmds</code></li>
 
 <li>In Spring XD Shell - Reset the richgauge taps to 0)
-<code>script --file ../../xd/reset-taps.cmds</code></li>
+<br/><code>script --file ../../xd/cmd/reset-taps.cmds</code></li>
 
 <li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
    <br/><code>./demo.py query_hawq</code>
@@ -83,8 +83,8 @@ You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modi
 /home/gpadmin/start_all.sh;</pre>
 </li>
 
-<li>In Spring XD Shell - Removes all streams/taps from Spring XD. Does not delete any data)
-<code>script --file ../../xd/destroy-all.cmds</code></li>
+<li>In Spring XD Shell - Remove all streams/taps from Spring XD. Does not delete any data)
+<code>script --file ../../xd/cmd/destroy-all.cmds</code></li>
 </ol>
 
 xd-demo-client
