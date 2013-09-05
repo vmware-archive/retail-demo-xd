@@ -1,2 +1,4 @@
 job undeploy batchRetailArchive
 job deploy batchRetailArchive
+job undeploy batchAnalytic
+job deploy batchAnalytic
