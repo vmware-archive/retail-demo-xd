@@ -22,7 +22,7 @@ def main():
     #   state_id = "05"
     
     store_id = state_id + city_id
-    num_items = str(random.randrange(1,100))
+    num_items = str(random.randrange(1,50))
        
     data = json.dumps({"customerId":cust_id,"orderId":order_id,"orderAmount":order_amount,"storeId":store_id,"numItems":num_items})
     

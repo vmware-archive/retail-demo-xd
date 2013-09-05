@@ -15,9 +15,10 @@ We are going to re-use some integration work that was done in the past and we ne
 ingesting into hadoop. The HTTP stream will accept JSON formatted key/value pairs of Order data. 
 Some orders have bad data. We need to filter these records before persisting them to HDFS. After landing the data into hadoop, 
 we would like to run SQL analytics on the orders to see if they match known fraudulent orders from the past. Hive is not an option 
-because it does not provide fast enough response time and full ANSI compliance. Some of these orders have very high amounts($5000+ is our wire-tap flag) that we want forward to an in-memory database that one of our
-real-time fraud detection applications uses to catch criminals before they leave the store. The in-memory database will need to
-support several hundred thousand transactions per second. 
+because it does not provide fast enough response time and full ANSI compliance. We want to run a logistic regression model on all  
+orders to feed our real-time fraud detection applications that aim to catch criminals before they leave the store. The logistic regression 
+model needs to be re-trained periodically via a scheduled process. The in-memory fraud data store needs to be flushed on a configurable
+interval and HDFS files need to be archived via a scheduled process. 
 
 <strong>In order to get this running with Pivotal HD</strong>
 <ol>
@@ -26,9 +27,9 @@ DB with HAWQ tables/data. The "pivotal-samples" github project is located at:
 
 https://github.com/PivotalHD/pivotal-samples</li>
 
-<li>Install Spring XD from source. The Github project is located at: 
+<li>Download and install the latest Spring XD binary. The project is located at: 
 
-https://github.com/SpringSource/spring-xd</li>
+http://www.springsource.org/spring-xd</li>
 
 <li>Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect webhdfs:
 	
@@ -39,44 +40,35 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <li>In a terminal window run(will scp python demo scripts to pivotal hd and sqlfire VMs. Will copy spring xd scripts, lib jars, modules and sink config:
    <br/><code>./install.py</code>
 </li> 
-<li>Run Spring XD DIRT/Admin in a terminal window - TODO! CHANGE TO DISTRIBUTED XD
-DISTRIBUTED MODE REQUIRES THIS SHELL SETTING FOR REDIS(CONNECTION TIMEOUT FIX): "sudo sysctl -w net.inet.tcp.msl=1000"
-   <br/><code>$SPRING_XD/xd/bin/xd-singlenode</code>
+<li>Run 3 Spring XD runtimes in terminal windows(redis, admin, container)
+  <br/><code>sudo sysctl -w net.inet.tcp.msl=1000
+            $SPRING_XD/redis/bin/redis-server
+            $SPRING_XD/xd/bin/xd-container</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 
  
 <br/><code>$SPRING_XD/shell/bin/spring-xd-shell</code>
 </li>
 <li>In Spring XD Shell - Create Hadoop ingest, Pivotal HD analytics tap and SQLFire sink.
-<code>script --file $DEMO_HOME/xd_streams.txt</li>
+<code>script --file ../../xd/create-all.cmds</code></li>
 
 <li>[PIVOTALHD TERMINAL] Open an ssh session to your Pivotal VM and run this script. You must do this before starting the data stream.
    <br/><code>./demo.py setup_hdfs</code>
-</li>
-
-<li>In a terminal window, run build_training_data.py to start a data stream that will populate a baseline set of data to build a statistical model.  This will populate 100K records so it will take a bit of time
-   <br/><code>./build_training_data.py </code>
-</li>
-
-<li>[PIVOTALHD TERMINAL]  Open an ssh session to your Pivotal VM and run this script.  This will take a bit of time.
-   <br/><code>./demo.py train_analytic</code>
-</li>
-
-<li>[SQLFIRE TERMINAL]  Open an ssh session to your SQLFire VM and run this script.
-   <br/><code>./demo.py setup</code>
 </li>
 
 <li>In a terminal window, run send_data.py to start a data stream simulation.
    <br/><code>./send_data.py</code>
 </li>
 
-<li>[SQLFIRE TERMINAL] Verify that SQLFire is getting only order amounts > 5000
+<li>[SQLFIRE TERMINAL] Verify that SQLFire is getting only a small subset of orders
 <br/><code>./demo.py query</code>
 </li>
 
-<li>[PIVOTALHD TERMINAL] Create PXF and HAWQ Tables
-   <br/><code>./demo.py setup_hawq</code>
-</li>
+<li>In Spring XD Shell - Re-run batch jobs(should delete SQLFire data, populate HAWQ tables, and re-run analytic training model)
+<code>script --file ../../xd/deploy-batch.cmds</code></li>
+
+<li>In Spring XD Shell - Reset the richgauge taps to 0)
+<code>script --file ../../xd/reset-taps.cmds</code></li>
 
 <li>[PIVOTALHD_TERMINAL] Run a PXF and HAWQ Query
    <br/><code>./demo.py query_hawq</code>
@@ -90,22 +82,20 @@ You will need to add a new "Cache" Driver JAR for SQLFire. You will need to modi
 /home/gpadmin/stop_all.sh;
 /home/gpadmin/start_all.sh;</pre>
 </li>
-<li>[PIVOTALHD TERMINAL] Teardown HAWQ tables
-   <br/><code>./demo.py teardown_hawq</code>
-</li>
-<li>[SQLFIRE TERMINAL] Teardown SQLFire tables
-   <br/><code>./demo.py teardown</code>
-</li>
+
+<li>In Spring XD Shell - Removes all streams/taps from Spring XD. Does not delete any data)
+<code>script --file ../../xd/destroy-all.cmds</code></li>
 </ol>
 
 xd-demo-client
 ==============
-
-Update web.xml spring.profiles.active param to control which active profile to use:
-	-- 'sqlfire': read data from SQLFire
-	-- 'gemfire': read data from GemFire JSON region
-
-Update app.properties (src/main/webapps/WEB-INF/classes) to reflect the IP addresses of your gemfire and sqlfire environments
-
-The application will be available at: http://localhost:<port>/xd-demo-client/resources/stores.html
+<ol>
+	<li>Update app.properties (src/main/webapps/WEB-INF/classes) to reflect the IP addresses 
+	of your sqlfire environment</li>
+	<li>Open a terminal and build the war via maven
+	<br/><code>mvn install</code>
+	</li>
+	<li>Copy the WAR file to a working tc Server or Tomcat server</li>
+	<li>The application will be available at: http://localhost:<port>/xd-demo-client/resources/index.html</li>
+</ol>
 

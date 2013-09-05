@@ -51,8 +51,7 @@ DROP TABLE model;
 def setup_hdfs():
   shellcmd('hdfs dfs -rm -r /xd')
   shellcmd('hdfs dfs -mkdir /xd')
-  shellcmd('hdfs dfs -mkdir /xd/order_stream')
-  shellcmd('hdfs dfs -chown williamsj:gpadmin /xd/order_stream')
+  shellcmd('hdfs dfs -chown williamsj:gpadmin /xd')
   shellcmd('hdfs dfs -mkdir /xd/order_stream_archive')
   shellcmd('hdfs dfs -chown williamsj:gpadmin /xd/order_stream_archive')
   shellcmd('hdfs dfs -mkdir /xd/training_stream')
