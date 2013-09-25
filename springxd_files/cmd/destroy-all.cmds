@@ -1,8 +1,12 @@
-tap destroy --name fraud_tap
+stream destroy --name batchRetailArchiveTrigger 
 
-tap destroy --name fraud_gauge_tap
+stream destroy --name batchAnalyticTrigger
 
-tap destroy --name order_gauge_tap
+stream destroy --name fraud_tap
+
+stream destroy --name fraud_gauge_tap
+
+stream destroy --name order_gauge_tap
 
 job destroy --name batchRetailArchive
 

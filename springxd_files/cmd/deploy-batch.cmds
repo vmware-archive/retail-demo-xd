@@ -1,4 +1,8 @@
 job undeploy batchRetailArchive
+stream destroy --name batchRetailArchiveTrigger
 job deploy batchRetailArchive
+stream create --name batchRetailArchiveTrigger --definition "trigger > job:batchRetailArchive"
 job undeploy batchAnalytic
+stream destroy --name batchAnalyticTrigger
 job deploy batchAnalytic
+stream create --name batchAnalyticTrigger --definition "trigger > job:batchAnalytic"

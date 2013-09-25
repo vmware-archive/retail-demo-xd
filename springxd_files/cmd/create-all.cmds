@@ -1,11 +1,15 @@
 stream create --definition "http --port=8000 | filter --expression=!payload.contains("BAD_DATA") | transform --script=order-transformer.groovy | hdfs --rollover=51200 --suffix=txt" --name order_stream
 
-tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name fraud_tap
+stream create --definition "tap:order_stream.filter > regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name fraud_tap
 
-tap create --definition "tap order_stream.filter | regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_gauge_tap
+stream create --definition "tap:order_stream.filter > regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_gauge_tap
 
-tap create --definition "tap order_stream.filter | json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_gauge_tap
+stream create --definition "tap:order_stream.filter > json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_gauge_tap
 
 job create --name batchAnalytic --definition "batch-analytic"
 
+stream create --name batchAnalyticTrigger --definition "trigger > job:batchAnalytic"
+
 job create --name batchRetailArchive --definition "batch-retail"
+
+stream create --name batchRetailArchiveTrigger --definition "trigger > job:batchRetailArchive"

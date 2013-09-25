@@ -47,7 +47,7 @@
 	</bean>
 
 	<!-- Batch Job Logic -->
-	<batch:job id="retailBatchJob">
+	<batch:job id="job">
 		<batch:step id="sqlfTeardown" next="sqlfCreate">
 			<batch:tasklet ref="sqlfTeardownTasklet" />
 		</batch:step>

@@ -30,7 +30,7 @@
 		<property name="proxyTargetClass" value="true" />
 	</bean>
  
-	<batch:job id="analyticBatchJob">
+	<batch:job id="job">
 		<batch:step id="load" next="setup">
 			<batch:tasklet ref="loadTasklet" />
 		</batch:step>
