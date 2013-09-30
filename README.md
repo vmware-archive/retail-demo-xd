@@ -29,7 +29,7 @@ https://github.com/PivotalHD/pivotal-samples</li>
 
 <li>Download and install the latest Spring XD binary. The project is located at: 
 
-http://www.springsource.org/spring-xd</li>
+http://projects.spring.io/spring-xd/</li>
 
 <li>Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect webhdfs:
 	
