@@ -31,7 +31,7 @@ https://github.com/PivotalHD/pivotal-samples</li>
 
 http://projects.spring.io/spring-xd/</li>
 
-<li>Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect webhdfs:
+<li>Update your spring-xd hadoop config ($SPRING_XD/xd/config/hadoop.properties) to reflect webhdfs:
 	
 fs.default.name=webhdfs://192.168.72.172:50070</li>
 
