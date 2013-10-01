@@ -43,8 +43,8 @@ fs.default.name=webhdfs://192.168.72.172:50070</li>
 <li>Run 3 Spring XD runtimes in terminal windows(redis, admin, container)
   <br/><code>sudo sysctl -w net.inet.tcp.msl=1000<br/>
             $SPRING_XD/redis/bin/redis-server<br/>
-            $SPRING_XD/xd/bin/xd-admin --hadoopDistro phd1</code>
-            $SPRING_XD/xd/bin/xd-container --hadoopDistro phd1<br/>
+            $SPRING_XD/xd/bin/xd-admin --hadoopDistro phd1<br/>
+            $SPRING_XD/xd/bin/xd-container --hadoopDistro phd1</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 
  
