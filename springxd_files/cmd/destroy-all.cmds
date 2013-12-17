@@ -1,7 +1,3 @@
-stream destroy --name batchRetailArchiveTrigger 
-
-stream destroy --name batchAnalyticTrigger
-
 stream destroy --name fraud_tap
 
 stream destroy --name fraud_gauge_tap

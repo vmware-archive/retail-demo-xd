@@ -11,7 +11,7 @@
 	<int:filter ref="logisticRegression" method="execute"
 		input-channel="input" output-channel="output" />
 
-	<lang:groovy id="logisticRegression" script-source="db-logistic-regression.groovy">
+	<lang:groovy id="logisticRegression" script-source="logistic-regression.groovy">
 		<lang:property name="template" ref="template" />
 		<lang:property name="threshold" value="${threshold:0.75}" />
 	</lang:groovy>

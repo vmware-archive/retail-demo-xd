@@ -4,8 +4,8 @@ stream destroy --name fraud_gauge_tap
 
 stream destroy --name order_gauge_tap
 
-stream create --definition "tap:order_stream.filter > regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name fraud_tap
+stream create --definition "tap:stream.order_stream.filter > regression-analytic --threshold=0.90 | jdbc --columns='customer_id,order_id,order_amount,store_id,num_items' --tablename='realtime_orders'" --name fraud_tap
 
-stream create --definition "tap:order_stream.filter > regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_gauge_tap
+stream create --definition "tap:stream.order_stream.filter > regression-analytic --threshold=0.90 | json-field-extractor --fieldName=orderAmount | richgauge --name=fraud_order_gauge" --name fraud_gauge_tap
 
-stream create --definition "tap:order_stream.filter > json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_gauge_tap
+stream create --definition "tap:stream.order_stream.filter > json-field-extractor --fieldName=orderAmount | richgauge --name=order_gauge" --name order_gauge_tap

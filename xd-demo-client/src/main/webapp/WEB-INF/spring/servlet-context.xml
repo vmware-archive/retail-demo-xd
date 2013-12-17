@@ -5,11 +5,13 @@
 	xmlns:gfe="http://www.springframework.org/schema/gemfire"
 	xmlns:gfe-data="http://www.springframework.org/schema/data/gemfire"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cloud="http://www.springframework.org/schema/cloud"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
-		http://www.springframework.org/schema/data/gemfire http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd">
+		http://www.springframework.org/schema/data/gemfire http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd
+		http://www.springframework.org/schema/cloud http://www.springframework.org/schema/cloud/spring-cloud.xsd">
 
 	<!-- DispatcherServlet Context: defines this servlet's request-processing 
 		infrastructure -->
@@ -23,8 +25,7 @@
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
 		in the /WEB-INF/views directory -->
-	<bean
-		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 		<property name="mediaTypes">
 			<map>
 				<entry key="html" value="text/html" />
@@ -51,31 +52,30 @@
 		</property>
 	</bean>
 
-
-
 	<context:property-placeholder location="classpath:app.properties" />
+	
+	<context:component-scan base-package="com.pivotal.example.xd.controller" />
 
-	<beans profile="sqlfire">
-		<context:component-scan base-package="com.pivotal.example.xd.controller" />
+	<!--
+	<cloud:service-scan/>
+	-->
+		
+ 	<!--  <cloud:data-source id="dataSource" /> -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.vmware.sqlfire.jdbc.ClientDriver" />
+		<property name="url" value="jdbc:sqlfire://localhost:7711" />
+		<property name="username" value="app" />
+		<property name="password" value="app" />
+	</bean>
 
-		<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-			destroy-method="close">
-			<property name="driverClassName" value="com.vmware.sqlfire.jdbc.ClientDriver" />
-			<property name="url" value="jdbc:sqlfire://${sqlfire.url}" />
-			<property name="username" value="${sqlfire.user}" />
-			<property name="password" value="${sqlfire.password}" />
-		</bean>
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" p:dataSource-ref="dataSource" />
+		
+	<!-- <cloud:redis-connection-factory id="redisConnectionFactory" /> -->
+	<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" >
+		<property name="hostName" value="localhost" />
+		<property name="port" value="6379" />
+	</bean>
 
-		<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"
-			p:dataSource-ref="dataSource" />
-
-		<bean id="jedisConnectionFactory"
-			class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-			p:host-name="localhost" p:port="6379" />
-
-
-		<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
-			p:connectionFactory-ref="jedisConnectionFactory"/>
-	</beans>
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connectionFactory-ref="redisConnectionFactory"/>
 
 </beans>
