@@ -29,9 +29,13 @@ https://github.com/PivotalHD/pivotal-samples</li>
 
 <li>Download and install the latest Spring XD binary. The project is located at: 
 
-http://www.springsource.org/spring-xd</li>
+http://projects.spring.io/spring-xd/</li>
 
+<<<<<<< HEAD
 <li>Update your spring-xd hadoop config ($SPRING_XD/conf/hadoop.properties) to reflect your hdfs address:
+=======
+<li>Update your spring-xd hadoop config ($SPRING_XD/xd/config/hadoop.properties) to reflect webhdfs:
+>>>>>>> 4985ef63c23b7c2723e426e91d14f685bebacd48
 	
 fs.default.name=hdfs://my-hadoop:8020</li>
 
@@ -43,8 +47,8 @@ fs.default.name=hdfs://my-hadoop:8020</li>
 <li>Run 3 Spring XD runtimes in terminal windows(redis, admin, container)
   <br/><code>sudo sysctl -w net.inet.tcp.msl=1000<br/>
             $SPRING_XD/redis/bin/redis-server<br/>
-            $SPRING_XD/xd/bin/xd-container --hadoopDistro phd1<br/>
-            $SPRING_XD/xd/bin/xd-admin --hadoopDistro phd1</code>
+            $SPRING_XD/xd/bin/xd-admin --hadoopDistro phd1<br/>
+            $SPRING_XD/xd/bin/xd-container --hadoopDistro phd1</code>
 </li>
 <li>Run Spring XD Shell in a terminal window 
  

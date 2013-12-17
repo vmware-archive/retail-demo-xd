@@ -7,10 +7,10 @@ function ApplicationModel() {
 
 	self.start = function() {
 		// Load initial state from server
-		$.getJSON("/xd-demo-client/orders", function(data) {
+		$.getJSON("/orders", function(data) {
 			self.retailOrders().loadOrders(data);
 		});
-		$.getJSON("/xd-demo-client/xdanalytics/orders", function(data) {
+		$.getJSON("/xdanalytics/orders", function(data) {
 			self.orderAnalytics().loadOrderAnalytics(data);
 		});
 		self.statesMap().loadMap(false);
@@ -18,10 +18,10 @@ function ApplicationModel() {
 
 	self.refresh = function() {
 		// Reload state from server
-		$.getJSON("/xd-demo-client/orders", function(data) {
+		$.getJSON("/orders", function(data) {
 			self.retailOrders().reloadOrders(data);
 		});
-		$.getJSON("/xd-demo-client/xdanalytics/orders", function(data) {
+		$.getJSON("/xdanalytics/orders", function(data) {
 			self.orderAnalytics().reloadOrderAnalytics(data);
 		});
 		self.statesMap().loadMap(true);
@@ -153,7 +153,7 @@ function MapModel() {
 		}
 
 		// d3.csv("us-ag-productivity-2004.csv", function(data) {
-		d3.json("/xd-demo-client/ordersumbystate", function(data) {
+		d3.json("/ordersumbystate", function(data) {
 			// Set input domain for color scale
 			color.domain([ d3.min(data, function(d) {
 				return d.orderAmount;
@@ -199,10 +199,10 @@ function MapModel() {
 						var value = d.properties.value;
 
 						if (value) {
-							// If value exists…
+							// If value exists
 							return color(value);
 						} else {
-							// If value is undefined…
+							// If value is undefined
 							return "grey";
 						}
 					});
@@ -214,10 +214,10 @@ function MapModel() {
 						var value = d.properties.value;
 
 						if (value) {
-							// If value exists…
+							// If value exists
 							return color(value);
 						} else {
-							// If value is undefined…
+							// If value is undefined
 							return "grey";
 						}
 					});
