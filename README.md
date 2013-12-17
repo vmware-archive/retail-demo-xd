@@ -1,6 +1,13 @@
 xd-demo with Pivotal HD Retail data
 ===================================
 
+<strong>Contributors</strong><br/>
+<ul>
+<li>James Williams - jwilliams@gopivotal.com</li>
+<li>Michael Goddard - mgoddard@gopivotal.com</li>
+<li>Adam Zwickey - azwickey@gopivotal.com</li>
+</ul>
+
 <strong>Demo User Story</strong><br/>
 We want to ingest real time orders from our POS system directly to HDFS via a pipe delimited HTTP post. 
 A sample post looks like:
@@ -101,6 +108,6 @@ xd-demo-client
 	<br/><code>mvn install</code>
 	</li>
 	<li>Copy the WAR file to a working tc Server or Tomcat server</li>
-	<li>The application will be available at: http://localhost:<port>/xd-demo-client/resources/index.html</li>
+	<li>The application will be available at: http://localhost:8080/xd-demo-client/resources/index.html</li>
 </ol>
 
