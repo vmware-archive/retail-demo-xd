@@ -1,4 +1,4 @@
-xd-demo with Pivotal HD Retail data
+<h1> VMware has ended active development of this project, this repository will no longer be updated.</h1><br>xd-demo with Pivotal HD Retail data
 ===================================
 
 <strong>Contributors</strong><br/>
